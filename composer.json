@@ -1,0 +1,20 @@
+{
+    "name": "clue/qdatastream",
+    "description": "Access Qt's QDataStream in PHP",
+    "keywords": ["QDataStream", "Qt", "binary", "serialize"],
+    "homepage": "https://github.com/clue/php-qdatastream",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Christian Lück",
+            "email": "christian@lueck.tv"
+        }
+    ],
+    "autoload": {
+        "psr-4": { "Clue\\QDataStream\\": "src/" }
+    },
+    "require": {
+    	"php": ">=5.3",
+        "e-butik/iodophor": "~1.0"
+    }
+}
