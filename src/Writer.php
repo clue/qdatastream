@@ -42,6 +42,16 @@ class Writer
         $this->writer->writeUInt32BE($int);
     }
 
+    public function writeShort($int)
+    {
+        $this->writer->writeInt16BE($int);
+    }
+
+    public function writeUShort($int)
+    {
+        $this->writer->writeUInt16BE($int);
+    }
+
     public function writeStringList(array $strings)
     {
         $this->writer->writeUInt32BE(count($strings));

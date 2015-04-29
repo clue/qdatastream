@@ -13,6 +13,8 @@ class Types
     const TYPE_STRING = 10;
     const TYPE_STRING_LIST = 11;
     const TYPE_BYTE_ARRAY = 12;
+    const TYPE_SHORT = 130;
+    const TYPE_USHORT = 133;
 
     public static function isList($array)
     {
