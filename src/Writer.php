@@ -9,14 +9,20 @@ use Iodophor\Io\StringWriter as IoWriter;
 class Writer
 {
     private $writer;
+    private $types;
     private $hasNull = true;
 
-    public function __construct(IoWriter $writer = null)
+    public function __construct(IoWriter $writer = null, Types $types = null)
     {
         if ($writer === null) {
             $writer = new IoWriter();
         }
+        if ($types === null) {
+            $types = new Types();
+        }
+
         $this->writer = $writer;
+        $this->types = $types;
     }
 
     public function __toString()
@@ -89,12 +95,12 @@ class Writer
 
     public function writeVariant($value)
     {
-        $this->writeVariantType($value, Types::getTypeByValue($value));
+        $this->writeVariantType($value, $this->types->getTypeByValue($value));
     }
 
     public function writeVariantType($value, $type)
     {
-        $name = 'write' . Types::getNameByType($type);
+        $name = 'write' . $this->types->getNameByType($type);
         if ($type === Types::TYPE_INT32 || $type === Types::TYPE_UINT32) {
             $name .= '32';
         }

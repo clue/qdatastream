@@ -9,16 +9,22 @@ use Iodophor\Io\StringReader;
 class Reader
 {
     private $reader;
+    private $types;
     private $hasNull = true;
 
-    public static function fromString($str)
+    public static function fromString($str, Types $types = null)
     {
-        return new self(new StringReader($str));
+        return new self(new StringReader($str), $types);
     }
 
-    public function __construct(IoReader $reader)
+    public function __construct(IoReader $reader, Types $types = null)
     {
+        if ($types === null) {
+            $types = new Types();
+        }
+
         $this->reader = $reader;
+        $this->types = $types;
     }
 
     public function readVariant()
@@ -30,7 +36,7 @@ class Reader
             /*$isNull = */ $this->readBool();
         }
 
-        $name = 'read' . Types::getNameByType($type);
+        $name = 'read' . $this->types->getNameByType($type);
         if (!method_exists($this, $name)) {
             throw new \BadMethodCallException('Known variant type (' . $type . '), but has no "' . $name . '()" method');
         }

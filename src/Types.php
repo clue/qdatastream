@@ -16,7 +16,7 @@ class Types
     const TYPE_SHORT = 130;
     const TYPE_USHORT = 133;
 
-    public static function getTypeByValue($value)
+    public function getTypeByValue($value)
     {
         if (is_int($value)) {
             return self::TYPE_INT32;
@@ -24,16 +24,16 @@ class Types
             return self::TYPE_STRING;
         } elseif (is_bool($value)) {
             return self::TYPE_BOOL;
-        } elseif (self::isList($value)) {
+        } elseif ($this->isList($value)) {
             return self::TYPE_VARIANT_LIST;
-        } elseif (self::isMap($value)) {
+        } elseif ($this->isMap($value)) {
             return self::TYPE_VARIANT_MAP;
         } else {
             throw new \InvalidArgumentException('Can not guess variant type for type "' . gettype($value) . '"');
         }
     }
 
-    public static function getNameByType($type)
+    public function getNameByType($type)
     {
         static $map = array(
             Types::TYPE_BOOL => 'Bool',
@@ -55,7 +55,7 @@ class Types
         return $map[$type];
     }
 
-    public static function isList($array)
+    public function isList($array)
     {
         if (!is_array($array)) {
             return false;
@@ -70,8 +70,8 @@ class Types
         return true;
     }
 
-    public static function isMap($array)
+    public function isMap($array)
     {
-        return ($array === array() || (is_array($array) && !self::isList($array)));
+        return ($array === array() || (is_array($array) && !$this->isList($array)));
     }
 }
