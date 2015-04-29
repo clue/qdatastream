@@ -30,37 +30,12 @@ class Reader
             /*$isNull = */ $this->readBool();
         }
 
-        if ($type === Types::TYPE_VARIANT_LIST) {
-            return $this->readVariantList();
+        $name = 'read' . Types::getNameByType($type);
+        if (!method_exists($this, $name)) {
+            throw new \BadMethodCallException('Known variant type (' . $type . '), but has no "' . $name . '()" method');
         }
-        if ($type === Types::TYPE_VARIANT_MAP) {
-            return $this->readVariantMap();
-        }
-        if ($type === Types::TYPE_STRING) {
-            return $this->readString();
-        }
-        if ($type === Types::TYPE_STRING_LIST) {
-            return $this->readStringList();
-        }
-        if ($type === Types::TYPE_BYTE_ARRAY) {
-            return $this->readByteArray();
-        }
-        if ($type === Types::TYPE_INT32) {
-            return $this->readInt();
-        }
-        if ($type === Types::TYPE_UINT32) {
-            return $this->readUInt();
-        }
-        if ($type === Types::TYPE_SHORT) {
-            return $this->readShort();
-        }
-        if ($type === Types::TYPE_USHORT) {
-            return $this->readUShort();
-        }
-        if ($type === Types::TYPE_BOOL) {
-            return $this->readBool();
-        }
-        throw new \InvalidArgumentException('Invalid/unknown variant type (' . $type . ')');
+
+        return $this->$name();
     }
 
     public function readVariantList()

@@ -94,19 +94,16 @@ class Writer
 
     public function writeVariantType($value, $type)
     {
-        $map = array(
-            Types::TYPE_INT32 => 'writeInt32',
-            Types::TYPE_STRING => 'writeString',
-            Types::TYPE_BOOL => 'writeBool',
-            Types::TYPE_VARIANT_LIST => 'writeVariantList',
-            Types::TYPE_VARIANT_MAP => 'writeVariantMap',
-        );
-        if (!isset($map[$type])) {
-            throw new InvalidArgumentException('Invalid/unknown variant type (' . $type . ')');
+        $name = 'write' . Types::getNameByType($type);
+        if ($type === Types::TYPE_INT32 || $type === Types::TYPE_UINT32) {
+            $name .= '32';
+        }
+        if (!method_exists($this, $name)) {
+            throw new \BadMethodCallException('Known variant type (' . $type . '), but has no "' . $name . '()" method');
         }
 
         $this->writeType($type);
-        $this->$map[$type]($value);
+        $this->$name($value);
     }
 
     public function writeVariantList(array $list)
