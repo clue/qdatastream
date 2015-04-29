@@ -9,16 +9,22 @@ use Iodophor\Io\StringReader;
 class Reader
 {
     private $reader;
+    private $types;
     private $hasNull = true;
 
-    public static function fromString($str)
+    public static function fromString($str, Types $types = null)
     {
-        return new self(new StringReader($str));
+        return new self(new StringReader($str), $types);
     }
 
-    public function __construct(IoReader $reader)
+    public function __construct(IoReader $reader, Types $types = null)
     {
+        if ($types === null) {
+            $types = new Types();
+        }
+
         $this->reader = $reader;
+        $this->types = $types;
     }
 
     public function readVariant()
@@ -30,37 +36,12 @@ class Reader
             /*$isNull = */ $this->readBool();
         }
 
-        if ($type === Types::TYPE_VARIANT_LIST) {
-            return $this->readVariantList();
+        $name = 'read' . $this->types->getNameByType($type);
+        if (!method_exists($this, $name)) {
+            throw new \BadMethodCallException('Known variant type (' . $type . '), but has no "' . $name . '()" method');
         }
-        if ($type === Types::TYPE_VARIANT_MAP) {
-            return $this->readVariantMap();
-        }
-        if ($type === Types::TYPE_STRING) {
-            return $this->readString();
-        }
-        if ($type === Types::TYPE_STRING_LIST) {
-            return $this->readStringList();
-        }
-        if ($type === Types::TYPE_BYTE_ARRAY) {
-            return $this->readByteArray();
-        }
-        if ($type === Types::TYPE_INT32) {
-            return $this->readInt();
-        }
-        if ($type === Types::TYPE_UINT32) {
-            return $this->readUInt();
-        }
-        if ($type === Types::TYPE_SHORT) {
-            return $this->readShort();
-        }
-        if ($type === Types::TYPE_USHORT) {
-            return $this->readUShort();
-        }
-        if ($type === Types::TYPE_BOOL) {
-            return $this->readBool();
-        }
-        throw new \InvalidArgumentException('Invalid/unknown variant type (' . $type . ')');
+
+        return $this->$name();
     }
 
     public function readVariantList()

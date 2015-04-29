@@ -9,14 +9,20 @@ use Iodophor\Io\StringWriter as IoWriter;
 class Writer
 {
     private $writer;
+    private $types;
     private $hasNull = true;
 
-    public function __construct(IoWriter $writer = null)
+    public function __construct(IoWriter $writer = null, Types $types = null)
     {
         if ($writer === null) {
             $writer = new IoWriter();
         }
+        if ($types === null) {
+            $types = new Types();
+        }
+
         $this->writer = $writer;
+        $this->types = $types;
     }
 
     public function __toString()
@@ -89,24 +95,21 @@ class Writer
 
     public function writeVariant($value)
     {
-        if (is_int($value)) {
-            $this->writeType(Types::TYPE_INT32);
-            $this->writeInt32($value);
-        } elseif (is_string($value)) {
-            $this->writeType(Types::TYPE_STRING);
-            $this->writeString($value);
-        } elseif (is_bool($value)) {
-            $this->writeType(Types::TYPE_BOOL);
-            $this->writeBool($value);
-        } elseif (Types::isList($value)) {
-            $this->writeType(Types::TYPE_VARIANT_LIST);
-            $this->writeVariantList($value);
-        } elseif (Types::isMap($value)) {
-            $this->writeType(Types::TYPE_VARIANT_MAP);
-            $this->writeVariantMap($value);
-        } else {
-            throw new InvalidArgumentException('Can not guess variant type for type "' . gettype($value) . '"');
+        $this->writeVariantType($value, $this->types->getTypeByValue($value));
+    }
+
+    public function writeVariantType($value, $type)
+    {
+        $name = 'write' . $this->types->getNameByType($type);
+        if ($type === Types::TYPE_INT32 || $type === Types::TYPE_UINT32) {
+            $name .= '32';
         }
+        if (!method_exists($this, $name)) {
+            throw new \BadMethodCallException('Known variant type (' . $type . '), but has no "' . $name . '()" method');
+        }
+
+        $this->writeType($type);
+        $this->$name($value);
     }
 
     public function writeVariantList(array $list)
