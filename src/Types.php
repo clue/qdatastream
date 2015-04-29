@@ -16,6 +16,23 @@ class Types
     const TYPE_SHORT = 130;
     const TYPE_USHORT = 133;
 
+    public static function getTypeByValue($value)
+    {
+        if (is_int($value)) {
+            return self::TYPE_INT32;
+        } elseif (is_string($value)) {
+            return self::TYPE_STRING;
+        } elseif (is_bool($value)) {
+            return self::TYPE_BOOL;
+        } elseif (self::isList($value)) {
+            return self::TYPE_VARIANT_LIST;
+        } elseif (self::isMap($value)) {
+            return self::TYPE_VARIANT_MAP;
+        } else {
+            throw new \InvalidArgumentException('Can not guess variant type for type "' . gettype($value) . '"');
+        }
+    }
+
     public static function isList($array)
     {
         if (!is_array($array)) {

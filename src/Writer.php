@@ -89,24 +89,24 @@ class Writer
 
     public function writeVariant($value)
     {
-        if (is_int($value)) {
-            $this->writeType(Types::TYPE_INT32);
-            $this->writeInt32($value);
-        } elseif (is_string($value)) {
-            $this->writeType(Types::TYPE_STRING);
-            $this->writeString($value);
-        } elseif (is_bool($value)) {
-            $this->writeType(Types::TYPE_BOOL);
-            $this->writeBool($value);
-        } elseif (Types::isList($value)) {
-            $this->writeType(Types::TYPE_VARIANT_LIST);
-            $this->writeVariantList($value);
-        } elseif (Types::isMap($value)) {
-            $this->writeType(Types::TYPE_VARIANT_MAP);
-            $this->writeVariantMap($value);
-        } else {
-            throw new InvalidArgumentException('Can not guess variant type for type "' . gettype($value) . '"');
+        $this->writeVariantType($value, Types::getTypeByValue($value));
+    }
+
+    public function writeVariantType($value, $type)
+    {
+        $map = array(
+            Types::TYPE_INT32 => 'writeInt32',
+            Types::TYPE_STRING => 'writeString',
+            Types::TYPE_BOOL => 'writeBool',
+            Types::TYPE_VARIANT_LIST => 'writeVariantList',
+            Types::TYPE_VARIANT_MAP => 'writeVariantMap',
+        );
+        if (!isset($map[$type])) {
+            throw new InvalidArgumentException('Invalid/unknown variant type (' . $type . ')');
         }
+
+        $this->writeType($type);
+        $this->$map[$type]($value);
     }
 
     public function writeVariantList(array $list)
