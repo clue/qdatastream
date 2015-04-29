@@ -33,6 +33,28 @@ class Types
         }
     }
 
+    public static function getNameByType($type)
+    {
+        static $map = array(
+            Types::TYPE_BOOL => 'Bool',
+            Types::TYPE_INT32 => 'Int',
+            Types::TYPE_UINT32 => 'UInt',
+            Types::TYPE_VARIANT_MAP => 'VariantMap',
+            Types::TYPE_VARIANT_LIST => 'VariantList',
+            Types::TYPE_STRING => 'String',
+            Types::TYPE_STRING_LIST => 'StringList',
+            Types::TYPE_BYTE_ARRAY => 'ByteArray',
+            Types::TYPE_SHORT => 'Short',
+            Types::TYPE_USHORT => 'UShort',
+        );
+
+        if (!isset($map[$type])) {
+            throw new \InvalidArgumentException('Invalid/unknown variant type (' . $type . ')');
+        }
+
+        return $map[$type];
+    }
+
     public static function isList($array)
     {
         if (!is_array($array)) {
