@@ -6,8 +6,8 @@ class Types
 {
     // https://github.com/sandsmark/QuasselDroid/blob/master/QuasselDroid/src/main/java/com/iskrembilen/quasseldroid/qtcomm/QMetaType.java
     const TYPE_BOOL = 1;
-    const TYPE_INT32 = 2;
-    const TYPE_UINT32 = 3;
+    const TYPE_INT = 2;
+    const TYPE_UINT = 3;
     const TYPE_VARIANT_MAP = 8;
     const TYPE_VARIANT_LIST = 9;
     const TYPE_STRING = 10;
@@ -19,7 +19,7 @@ class Types
     public function getTypeByValue($value)
     {
         if (is_int($value)) {
-            return self::TYPE_INT32;
+            return self::TYPE_INT;
         } elseif (is_string($value)) {
             return self::TYPE_STRING;
         } elseif (is_bool($value)) {
@@ -37,8 +37,8 @@ class Types
     {
         static $map = array(
             Types::TYPE_BOOL => 'Bool',
-            Types::TYPE_INT32 => 'Int',
-            Types::TYPE_UINT32 => 'UInt',
+            Types::TYPE_INT => 'Int',
+            Types::TYPE_UINT => 'UInt',
             Types::TYPE_VARIANT_MAP => 'VariantMap',
             Types::TYPE_VARIANT_LIST => 'VariantList',
             Types::TYPE_STRING => 'String',
