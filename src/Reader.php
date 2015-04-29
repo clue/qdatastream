@@ -51,6 +51,12 @@ class Reader
         if ($type === Types::TYPE_UINT32) {
             return $this->readUInt();
         }
+        if ($type === Types::TYPE_SHORT) {
+            return $this->readShort();
+        }
+        if ($type === Types::TYPE_USHORT) {
+            return $this->readUShort();
+        }
         if ($type === Types::TYPE_BOOL) {
             return $this->readBool();
         }
@@ -126,6 +132,16 @@ class Reader
     public function readUInt()
     {
         return $this->reader->readUInt32BE();
+    }
+
+    public function readShort()
+    {
+        return $this->reader->readInt16BE();
+    }
+
+    public function readUShort()
+    {
+        return $this->reader->readUInt16BE();
     }
 
     public function readBool()

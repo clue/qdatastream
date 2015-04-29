@@ -37,4 +37,17 @@ class FunctionalTest extends TestCase
 
         $this->assertEquals($in, $reader->readVariant());
     }
+
+    public function testShorts()
+    {
+        $writer = new Writer();
+        $writer->writeShort(-100);
+        $writer->writeUShort(60000);
+
+        $data = (string)$writer;
+        $reader = Reader::fromString($data);
+
+        $this->assertEquals(-100, $reader->readShort());
+        $this->assertEquals(60000, $reader->readUShort());
+    }
 }
