@@ -38,12 +38,12 @@ class Writer
         }
     }
 
-    public function writeInt32($int)
+    public function writeInt($int)
     {
         $this->writer->writeInt32BE($int);
     }
 
-    public function writeUInt32($int)
+    public function writeUInt($int)
     {
         $this->writer->writeUInt32BE($int);
     }
@@ -101,9 +101,6 @@ class Writer
     public function writeVariantType($value, $type)
     {
         $name = 'write' . $this->types->getNameByType($type);
-        if ($type === Types::TYPE_INT32 || $type === Types::TYPE_UINT32) {
-            $name .= '32';
-        }
         if (!method_exists($this, $name)) {
             throw new \BadMethodCallException('Known variant type (' . $type . '), but has no "' . $name . '()" method');
         }

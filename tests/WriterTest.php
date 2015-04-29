@@ -29,7 +29,7 @@ class WriterTest extends TestCase
 
     public function testInteger()
     {
-        $this->writer->writeInt32(31);
+        $this->writer->writeInt(31);
         $this->assertEquals("\x00\x00\x00\x1F", (string)$this->writer);
     }
 
@@ -109,8 +109,8 @@ class WriterTest extends TestCase
 
     public function testIntegersConcatenated()
     {
-        $this->writer->writeInt32(0);
-        $this->writer->writeInt32(256);
+        $this->writer->writeInt(0);
+        $this->writer->writeInt(256);
         $this->assertEquals("\x00\x00\x00\x00" . "\x00\x00\x01\x00", (string)$this->writer);
     }
 
