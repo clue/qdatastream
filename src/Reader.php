@@ -10,14 +10,15 @@ class Reader
 {
     private $reader;
     private $types;
+    private $userTypeMap;
     private $hasNull = true;
 
-    public static function fromString($str, Types $types = null)
+    public static function fromString($str, Types $types = null, $userTypeMap = array())
     {
-        return new self(new StringReader($str), $types);
+        return new self(new StringReader($str), $types, $userTypeMap);
     }
 
-    public function __construct(IoReader $reader, Types $types = null)
+    public function __construct(IoReader $reader, Types $types = null, $userTypeMap = array())
     {
         if ($types === null) {
             $types = new Types();
@@ -25,6 +26,7 @@ class Reader
 
         $this->reader = $reader;
         $this->types = $types;
+        $this->userTypeMap = $userTypeMap;
     }
 
     public function readVariant()
@@ -128,5 +130,23 @@ class Reader
     public function readBool()
     {
         return $this->reader->readUInt8() ? true : false;
+    }
+
+    public function readUserType()
+    {
+        // name is encoded as UTF-8 string (byte array) and ends with \0 as last byte
+        $name = substr($this->readByteArray(), 0, -1);
+
+        return $this->readUserTypeByName($name);
+    }
+
+    public function readUserTypeByName($name)
+    {
+        if (!isset($this->userTypeMap[$name])) {
+            throw new \UnexpectedValueException('Unknown user type "' . $name . '" does not have any data mapping');
+        }
+        $name = $this->userTypeMap[$name];
+
+        return $name($this);
     }
 }

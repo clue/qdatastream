@@ -13,6 +13,7 @@ class Types
     const TYPE_STRING = 10;
     const TYPE_STRING_LIST = 11;
     const TYPE_BYTE_ARRAY = 12;
+    const TYPE_USER_TYPE = 127;
     const TYPE_SHORT = 130;
     const TYPE_USHORT = 133;
 
@@ -44,6 +45,7 @@ class Types
             Types::TYPE_STRING => 'String',
             Types::TYPE_STRING_LIST => 'StringList',
             Types::TYPE_BYTE_ARRAY => 'ByteArray',
+            Types::TYPE_USER_TYPE => 'UserType',
             Types::TYPE_SHORT => 'Short',
             Types::TYPE_USHORT => 'UShort',
         );
