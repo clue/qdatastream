@@ -73,7 +73,7 @@ class Writer
         $this->writer->writeUInt32BE(count($strings));
 
         foreach ($strings as $string) {
-            $this->writeString($strin);
+            $this->writeString($string);
         }
     }
 

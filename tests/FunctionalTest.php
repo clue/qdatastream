@@ -17,6 +17,18 @@ class FunctionalTest extends TestCase
 
         $this->assertEquals($in, $reader->readString());
     }
+
+    public function testStringNull()
+    {
+        $writer = new Writer();
+        $writer->writeString(null);
+
+        $data = (string)$writer;
+        $reader = Reader::fromString($data);
+
+        $this->assertEquals(null, $reader->readString());
+    }
+
     public function testVariantAutoTypes()
     {
         $in = array(
@@ -36,6 +48,17 @@ class FunctionalTest extends TestCase
         $reader = Reader::fromString($data);
 
         $this->assertEquals($in, $reader->readVariant());
+    }
+
+    public function testStringList()
+    {
+        $writer = new Writer();
+        $writer->writeStringList(array('hello', 'world'));
+
+        $data = (string)$writer;
+        $reader = Reader::fromString($data);
+
+        $this->assertEquals(array('hello', 'world'), $reader->readStringList());
     }
 
     public function testShorts()

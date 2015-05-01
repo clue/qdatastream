@@ -30,4 +30,12 @@ class TypesTest extends TestCase
         $this->assertFalse($this->types->isMap(true));
         $this->assertFalse($this->types->isMap(array(1, 'hello')));
     }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testInvalidType()
+    {
+        $this->types->getNameByType(123456);
+    }
 }
