@@ -15,7 +15,9 @@ class Types
     const TYPE_BYTE_ARRAY = 12;
     const TYPE_USER_TYPE = 127;
     const TYPE_SHORT = 130;
+    const TYPE_CHAR = 131;
     const TYPE_USHORT = 133;
+    const TYPE_UCHAR = 134;
 
     public function getTypeByValue($value)
     {
@@ -47,7 +49,9 @@ class Types
             Types::TYPE_BYTE_ARRAY => 'ByteArray',
             Types::TYPE_USER_TYPE => 'UserType',
             Types::TYPE_SHORT => 'Short',
+            Types::TYPE_CHAR => 'Char',
             Types::TYPE_USHORT => 'UShort',
+            Types::TYPE_UCHAR => 'UChar',
         );
 
         if (!isset($map[$type])) {

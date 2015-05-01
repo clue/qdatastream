@@ -127,6 +127,16 @@ class Reader
         return $this->reader->readUInt16BE();
     }
 
+    public function readChar()
+    {
+        return $this->reader->readInt8();
+    }
+
+    public function readUChar()
+    {
+        return $this->reader->readUInt8();
+    }
+
     public function readBool()
     {
         return $this->reader->readUInt8() ? true : false;
