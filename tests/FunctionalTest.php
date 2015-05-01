@@ -50,4 +50,17 @@ class FunctionalTest extends TestCase
         $this->assertEquals(-100, $reader->readShort());
         $this->assertEquals(60000, $reader->readUShort());
     }
+
+    public function testChars()
+    {
+        $writer = new Writer();
+        $writer->writeChar(-100);
+        $writer->writeUChar(250);
+
+        $data = (string)$writer;
+        $reader = Reader::fromString($data);
+
+        $this->assertEquals(-100, $reader->readChar());
+        $this->assertEquals(250, $reader->readUChar());
+    }
 }
