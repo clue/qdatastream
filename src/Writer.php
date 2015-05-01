@@ -137,4 +137,27 @@ class Writer
             $this->writeVariant($value);
         }
     }
+
+    public function writeTime($timestamp)
+    {
+        if ($timestamp instanceof \DateTime) {
+            $timestamp = $timestamp->format('U.u');
+        }
+
+        $msec = round(($timestamp - strtotime('midnight')) * 1000);
+        $this->writer->writeUInt32BE($msec);
+    }
+
+    public function writeDateTime($timestamp)
+    {
+        if ($timestamp instanceof \DateTime) {
+            $timestamp = $timestamp->format('U.u');
+        }
+        $msec = round(($timestamp % 86400) * 1000);
+        $days = floor($timestamp / 86400) + 2440588;
+
+        $this->writer->writeUInt32BE($days);
+        $this->writer->writeUInt32BE($msec);
+        $this->writer->writeInt8(1);
+    }
 }

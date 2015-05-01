@@ -31,6 +31,11 @@ class TypesTest extends TestCase
         $this->assertFalse($this->types->isMap(array(1, 'hello')));
     }
 
+    public function testTypeDateTime()
+    {
+        $this->assertEquals(Types::TYPE_DATETIME, $this->types->getTypeByValue(new \DateTime()));
+    }
+
     /**
      * @expectedException InvalidArgumentException
      */
