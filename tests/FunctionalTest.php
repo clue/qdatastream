@@ -17,6 +17,18 @@ class FunctionalTest extends TestCase
 
         $this->assertEquals($in, $reader->readString());
     }
+
+    public function testStringNull()
+    {
+        $writer = new Writer();
+        $writer->writeString(null);
+
+        $data = (string)$writer;
+        $reader = Reader::fromString($data);
+
+        $this->assertEquals(null, $reader->readString());
+    }
+
     public function testVariantAutoTypes()
     {
         $in = array(
