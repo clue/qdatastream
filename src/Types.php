@@ -13,6 +13,8 @@ class Types
     const TYPE_STRING = 10;
     const TYPE_STRING_LIST = 11;
     const TYPE_BYTE_ARRAY = 12;
+    const TYPE_TIME = 15;
+    const TYPE_DATETIME = 16;
     const TYPE_USER_TYPE = 127;
     const TYPE_SHORT = 130;
     const TYPE_CHAR = 131;
@@ -31,6 +33,8 @@ class Types
             return self::TYPE_VARIANT_LIST;
         } elseif ($this->isMap($value)) {
             return self::TYPE_VARIANT_MAP;
+        } elseif ($value instanceof \DateTime) {
+            return self::TYPE_DATETIME;
         } else {
             throw new \InvalidArgumentException('Can not guess variant type for type "' . gettype($value) . '"');
         }
@@ -47,6 +51,8 @@ class Types
             Types::TYPE_STRING => 'String',
             Types::TYPE_STRING_LIST => 'StringList',
             Types::TYPE_BYTE_ARRAY => 'ByteArray',
+            Types::TYPE_TIME => 'Time',
+            Types::TYPE_DATETIME => 'DateTime',
             Types::TYPE_USER_TYPE => 'UserType',
             Types::TYPE_SHORT => 'Short',
             Types::TYPE_CHAR => 'Char',

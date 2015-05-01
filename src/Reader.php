@@ -159,4 +159,37 @@ class Reader
 
         return $name($this);
     }
+
+    public function readTime()
+    {
+        $msec = $this->readUInt();
+        // TODO: losing sub-second precision here..
+        $secondsSinceMidnight = round($msec / 1000);
+
+        $dt = new \DateTime('midnight');
+        $dt->modify('+' . $secondsSinceMidnight . ' seconds');
+
+        return $dt;
+    }
+
+    public function readDateTime()
+    {
+        $day = $this->readUInt();
+        $msec = $this->readUInt();
+        $isUtc = $this->readBool();
+
+        if ($day === 0 && $msec === 0xFFFFFFFF) {
+            return null;
+        }
+
+        $daysSinceUnixEpoche = $day - 2440588; // unix epoche
+        // TODO: losing sub-second precision here..
+        $secondsSinceMidnight = round($msec / 1000);
+
+        $dt = new \DateTime('1970-01-01', $isUtc ? new \DateTimeZone('UTC') : null);
+        $dt->modify('+' . $daysSinceUnixEpoche . ' days');
+        $dt->modify('+' . $secondsSinceMidnight . ' seconds');
+
+        return $dt;
+    }
 }

@@ -86,4 +86,86 @@ class FunctionalTest extends TestCase
         $this->assertEquals(-100, $reader->readChar());
         $this->assertEquals(250, $reader->readUChar());
     }
+
+    public function testReadTime()
+    {
+        $now = new \DateTime();
+
+        $writer = new Writer();
+        $writer->writeTime($now);
+
+        $in = (string)$writer;
+        $reader = Reader::fromString($in);
+
+        $dt = $reader->readTime();
+        $this->assertEquals($now, $dt);
+    }
+
+    public function testReadTimeSubSecond()
+    {
+        $this->markTestIncomplete('Sub-second accuracy not implemented');
+
+        $time = '2015-05-01 16:02:03.413705';
+        $now = new \DateTime($time);
+
+        $writer = new Writer();
+        $writer->writeTime($now);
+
+        $in = (string)$writer;
+        $reader = Reader::fromString($in);
+
+        $dt = $reader->readTime();
+        $this->assertEquals($now->format('U.u'), $dt->format('U.u'));
+    }
+
+    public function testReadTimeMicrotime()
+    {
+        $this->markTestIncomplete('Sub-second accuracy not implemented');
+
+        $now = microtime(true);
+
+        $writer = new Writer();
+        $writer->writeTime($now);
+
+        $in = (string)$writer;
+        $reader = Reader::fromString($in);
+
+        $dt = $reader->readTime();
+        $this->assertEquals($now, $dt->format('U.u'));
+    }
+
+    public function testReadDateTime()
+    {
+        $writer = new Writer();
+        $writer->writeUInt(2457136); // day 2457136 - 2015-04-23
+        $writer->writeUInt(50523000); // msec 50523000 - 14:02:03 UTC
+        $writer->writeBool(true);
+
+        $in = (string)$writer;
+        $reader = Reader::fromString($in);
+
+        $dt = $reader->readDateTime();
+        $this->assertEquals('2015-04-23 14:02:03', $dt->format('Y-m-d H:i:s'));
+
+        $writer = new Writer();
+        $writer->writeDateTime($dt);
+
+        $out = (string)$writer;
+
+        $this->assertEquals($in, $out);
+    }
+
+    public function testReadDateTimeNull()
+    {
+        $writer = new Writer();
+        $writer->writeUInt(0);
+        $writer->writeUInt(0xFFFFFFFF);
+        $writer->writeBool(true);
+
+        $in = (string)$writer;
+        $reader = Reader::fromString($in);
+
+        $dt = $reader->readDateTime();
+        $this->assertNull($dt);
+    }
 }
