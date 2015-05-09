@@ -97,6 +97,34 @@ class FunctionalTest extends TestCase
         $this->assertEquals($in, $reader->readVariantMap());
     }
 
+    public function testUserType()
+    {
+        $in = array(
+            'id' => 62000,
+            'name' => 'test'
+        );
+
+        $writer = new Writer(null, null, array(
+            'user' => function ($data, Writer $writer) {
+                $writer->writeUShort($data['id']);
+                $writer->writeString($data['name']);
+            }
+        ));
+        $writer->writeVariant($in, 'user');
+
+        $data = (string)$writer;
+        $reader = Reader::fromString($data, null, array(
+            'user' => function (Reader $reader) {
+                return array(
+                    'id' => $reader->readUShort(),
+                    'name' => $reader->readString()
+                );
+            }
+        ));
+
+        $this->assertEquals($in, $reader->readVariant());
+    }
+
     public function testStringList()
     {
         $writer = new Writer();

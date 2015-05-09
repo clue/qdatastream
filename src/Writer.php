@@ -10,9 +10,10 @@ class Writer
 {
     private $writer;
     private $types;
+    private $userTypeMap;
     private $hasNull = true;
 
-    public function __construct(IoWriter $writer = null, Types $types = null)
+    public function __construct(IoWriter $writer = null, Types $types = null, $userTypeMap = array())
     {
         if ($writer === null) {
             $writer = new IoWriter();
@@ -23,6 +24,7 @@ class Writer
 
         $this->writer = $writer;
         $this->types = $types;
+        $this->userTypeMap = $userTypeMap;
     }
 
     public function __toString()
@@ -122,6 +124,17 @@ class Writer
 
         $this->writeType($type);
         $this->$name($value);
+    }
+
+    public function writeUserTypeByName($value, $userType)
+    {
+        if (!isset($this->userTypeMap[$userType])) {
+            throw new \UnexpectedValueException('Unknown user type "' . $userType . '" does not have any data mapping');
+        }
+        $this->writeByteArray($userType . "\x00");
+
+        $fn = $this->userTypeMap[$userType];
+        $fn($value, $this);
     }
 
     public function writeVariantList(array $list, $explicitTypes = array())
