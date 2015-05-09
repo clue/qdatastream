@@ -1,6 +1,7 @@
 <?php
 
 use Clue\QDataStream\Writer;
+use Clue\QDataStream\Types;
 
 class WriterTest extends TestCase
 {
@@ -97,6 +98,12 @@ class WriterTest extends TestCase
     {
         $this->writer->writeVariant('Hi');
         $this->assertEquals("\x00\x00\x00\x0A\x00" . "\x00\x00\x00\x04" . "\x00H\x00i", (string)$this->writer);
+    }
+
+    public function testVariantExplicit()
+    {
+        $this->writer->writeVariant(2015, Types::TYPE_USHORT);
+        $this->assertEquals("\x00\x00\x00\x85\x00" . "\x07\xDF", (string)$this->writer);
     }
 
     /**
