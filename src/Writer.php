@@ -103,13 +103,18 @@ class Writer
         $this->writer->writeUInt8($value ? 1 : 0);
     }
 
-    public function writeVariant($value)
+    public function writeVariant($value, $type = null)
     {
-        $this->writeVariantType($value, $this->types->getTypeByValue($value));
-    }
+        if ($type === null) {
+            $type = $this->types->getTypeByValue($value);
+        }
 
-    public function writeVariantType($value, $type)
-    {
+        if (is_string($type)) {
+            $this->writeType(Types::TYPE_USER_TYPE);
+
+            return $this->writeUserTypeByName($value, $type);
+        }
+
         $name = 'write' . $this->types->getNameByType($type);
         if (!method_exists($this, $name)) {
             throw new \BadMethodCallException('Known variant type (' . $type . '), but has no "' . $name . '()" method');

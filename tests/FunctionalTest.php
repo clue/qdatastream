@@ -2,6 +2,7 @@
 
 use Clue\QDataStream\Reader;
 use Clue\QDataStream\Writer;
+use Clue\QDataStream\Types;
 
 class FunctionalTest extends TestCase
 {
@@ -43,6 +44,19 @@ class FunctionalTest extends TestCase
 
         $writer = new Writer();
         $writer->writeVariant($in);
+
+        $data = (string)$writer;
+        $reader = Reader::fromString($data);
+
+        $this->assertEquals($in, $reader->readVariant());
+    }
+
+    public function testVariantExplicitCharType()
+    {
+        $in = 100;
+
+        $writer = new Writer();
+        $writer->writeVariant($in, Types::TYPE_CHAR);
 
         $data = (string)$writer;
         $reader = Reader::fromString($data);
