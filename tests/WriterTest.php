@@ -7,7 +7,15 @@ class WriterTest extends TestCase
 {
     public function setUp()
     {
-        $this->writer = new Writer();
+        $this->writer = new Writer(null, null, array(
+            'year' => function ($data, Writer $writer) {
+                $writer->writeUShort($data);
+            },
+            'user' => function ($data, Writer $writer) {
+                $writer->writeShort($data['id']);
+                $writer->writeString($data['name']);
+            }
+        ));
     }
 
     public function testBoolTrue()
@@ -128,4 +136,33 @@ class WriterTest extends TestCase
         $this->assertEquals("\x00\x00\x00\x02\x00" . "\x00\x00\x00\x00" . "\x00\x00\x00\x02\x00" . "\x00\x00\x01\x00", (string)$this->writer);
     }
 
+    public function testUserTypeSimple()
+    {
+        $this->writer->writeUserTypeByName(2015, 'year');
+        $this->assertEquals("\x00\x00\x00\x05" . "year\x00" . "\x07\xDF", (string)$this->writer);
+    }
+
+    public function testVariantUserType()
+    {
+        $this->writer->writeVariant(2015, 'year');
+        $this->assertEquals("\x00\x00\x00\x7F" . "\x00" . "\x00\x00\x00\x05" . "year\x00" . "\x07\xDF", (string)$this->writer);
+    }
+
+    public function testUserTypeComplex()
+    {
+        $user = array(
+            'name' => 'test',
+            'id' => 10
+        );
+        $this->writer->writeUserTypeByName($user, 'user');
+        $this->assertEquals("\x00\x00\x00\x05" . "user\x00" . "\x00\x0A" . "\x00\x00\x00\x08" . "\x00t\x00e\x00s\x00t", (string)$this->writer);
+    }
+
+    /**
+     * @expectedException UnexpectedValueException
+     */
+    public function testUserTypeInvalid()
+    {
+        $this->writer->writeUserTypeByName(10, 'unknown');
+    }
 }
