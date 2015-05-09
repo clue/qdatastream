@@ -64,6 +64,39 @@ class FunctionalTest extends TestCase
         $this->assertEquals($in, $reader->readVariant());
     }
 
+    public function testVariantListSomeExplicit()
+    {
+        $in = array(
+            -10,
+            20,
+            -300
+        );
+
+        $writer = new Writer();
+        $writer->writeVariantList($in, array(0 => Types::TYPE_CHAR));
+
+        $data = (string)$writer;
+        $reader = Reader::fromString($data);
+
+        $this->assertEquals($in, $reader->readVariantList());
+    }
+
+    public function testVariantMapSomeExplicit()
+    {
+        $in = array(
+            'id' => 62000,
+            'name' => 'test'
+        );
+
+        $writer = new Writer();
+        $writer->writeVariantMap($in, array('id' => Types::TYPE_USHORT));
+
+        $data = (string)$writer;
+        $reader = Reader::fromString($data);
+
+        $this->assertEquals($in, $reader->readVariantMap());
+    }
+
     public function testStringList()
     {
         $writer = new Writer();
