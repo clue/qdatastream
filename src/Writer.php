@@ -124,22 +124,28 @@ class Writer
         $this->$name($value);
     }
 
-    public function writeVariantList(array $list)
+    public function writeVariantList(array $list, $explicitTypes = array())
     {
         $this->writer->writeUInt32BE(count($list));
 
-        foreach ($list as $value) {
-            $this->writeVariant($value);
+        foreach ($list as $index => $value) {
+            $this->writeVariant(
+                $value,
+                isset($explicitTypes[$index]) ? $explicitTypes[$index] : null
+            );
         }
     }
 
-    public function writeVariantMap(array $map)
+    public function writeVariantMap(array $map, $explicitTypes = array())
     {
         $this->writer->writeUInt32BE(count($map));
 
         foreach ($map as $key => $value) {
             $this->writeString($key);
-            $this->writeVariant($value);
+            $this->writeVariant(
+                $value,
+                isset($explicitTypes[$key]) ? $explicitTypes[$key] : null
+            );
         }
     }
 
