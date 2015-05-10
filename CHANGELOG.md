@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.0 (2015-05-10)
+
+*   BC break: Merge `writeVariantType()` into `writeVariant()`
+    ([#9](https://github.com/clue/php-qdatastream/pull/9))
+
+*   Feature: Support passing explicit types to variant list and map
+    ([#10](https://github.com/clue/php-qdatastream/pull/10))
+
+*   Feature: Support custom TYPE_USER_TYPE for writing
+    ([#11](https://github.com/clue/php-qdatastream/pull/11))
+
 ## 0.2.0 (2015-05-01)
 
 *   BC break: Remove size postfix from integer types
