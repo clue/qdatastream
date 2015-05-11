@@ -6,31 +6,31 @@ use Clue\QDataStream\Types;
 
 class FunctionalTest extends TestCase
 {
-    public function testString()
+    public function testQString()
     {
         $in = 'hellö';
 
         $writer = new Writer();
-        $writer->writeString($in);
+        $writer->writeQString($in);
 
         $data = (string)$writer;
         $reader = Reader::fromString($data);
 
-        $this->assertEquals($in, $reader->readString());
+        $this->assertEquals($in, $reader->readQString());
     }
 
-    public function testStringNull()
+    public function testQStringNull()
     {
         $writer = new Writer();
-        $writer->writeString(null);
+        $writer->writeQString(null);
 
         $data = (string)$writer;
         $reader = Reader::fromString($data);
 
-        $this->assertEquals(null, $reader->readString());
+        $this->assertEquals(null, $reader->readQString());
     }
 
-    public function testVariantAutoTypes()
+    public function testQVariantAutoTypes()
     {
         $in = array(
             'hello' => 'world',
@@ -43,28 +43,28 @@ class FunctionalTest extends TestCase
         );
 
         $writer = new Writer();
-        $writer->writeVariant($in);
+        $writer->writeQVariant($in);
 
         $data = (string)$writer;
         $reader = Reader::fromString($data);
 
-        $this->assertEquals($in, $reader->readVariant());
+        $this->assertEquals($in, $reader->readQVariant());
     }
 
-    public function testVariantExplicitCharType()
+    public function testQVariantExplicitCharType()
     {
         $in = 100;
 
         $writer = new Writer();
-        $writer->writeVariant($in, Types::TYPE_CHAR);
+        $writer->writeQVariant($in, Types::TYPE_CHAR);
 
         $data = (string)$writer;
         $reader = Reader::fromString($data);
 
-        $this->assertEquals($in, $reader->readVariant());
+        $this->assertEquals($in, $reader->readQVariant());
     }
 
-    public function testVariantListSomeExplicit()
+    public function testQVariantListSomeExplicit()
     {
         $in = array(
             -10,
@@ -73,15 +73,15 @@ class FunctionalTest extends TestCase
         );
 
         $writer = new Writer();
-        $writer->writeVariantList($in, array(0 => Types::TYPE_CHAR));
+        $writer->writeQVariantList($in, array(0 => Types::TYPE_CHAR));
 
         $data = (string)$writer;
         $reader = Reader::fromString($data);
 
-        $this->assertEquals($in, $reader->readVariantList());
+        $this->assertEquals($in, $reader->readQVariantList());
     }
 
-    public function testVariantMapSomeExplicit()
+    public function testQVariantMapSomeExplicit()
     {
         $in = array(
             'id' => 62000,
@@ -89,15 +89,15 @@ class FunctionalTest extends TestCase
         );
 
         $writer = new Writer();
-        $writer->writeVariantMap($in, array('id' => Types::TYPE_USHORT));
+        $writer->writeQVariantMap($in, array('id' => Types::TYPE_USHORT));
 
         $data = (string)$writer;
         $reader = Reader::fromString($data);
 
-        $this->assertEquals($in, $reader->readVariantMap());
+        $this->assertEquals($in, $reader->readQVariantMap());
     }
 
-    public function testUserType()
+    public function testQUserType()
     {
         $in = array(
             'id' => 62000,
@@ -107,33 +107,33 @@ class FunctionalTest extends TestCase
         $writer = new Writer(null, null, array(
             'user' => function ($data, Writer $writer) {
                 $writer->writeUShort($data['id']);
-                $writer->writeString($data['name']);
+                $writer->writeQString($data['name']);
             }
         ));
-        $writer->writeVariant($in, 'user');
+        $writer->writeQVariant($in, 'user');
 
         $data = (string)$writer;
         $reader = Reader::fromString($data, null, array(
             'user' => function (Reader $reader) {
                 return array(
                     'id' => $reader->readUShort(),
-                    'name' => $reader->readString()
+                    'name' => $reader->readQString()
                 );
             }
         ));
 
-        $this->assertEquals($in, $reader->readVariant());
+        $this->assertEquals($in, $reader->readQVariant());
     }
 
-    public function testStringList()
+    public function testQStringList()
     {
         $writer = new Writer();
-        $writer->writeStringList(array('hello', 'world'));
+        $writer->writeQStringList(array('hello', 'world'));
 
         $data = (string)$writer;
         $reader = Reader::fromString($data);
 
-        $this->assertEquals(array('hello', 'world'), $reader->readStringList());
+        $this->assertEquals(array('hello', 'world'), $reader->readQStringList());
     }
 
     public function testShorts()
@@ -162,21 +162,21 @@ class FunctionalTest extends TestCase
         $this->assertEquals(250, $reader->readUChar());
     }
 
-    public function testReadTime()
+    public function testReadQTime()
     {
         $now = new \DateTime();
 
         $writer = new Writer();
-        $writer->writeTime($now);
+        $writer->writeQTime($now);
 
         $in = (string)$writer;
         $reader = Reader::fromString($in);
 
-        $dt = $reader->readTime();
+        $dt = $reader->readQTime();
         $this->assertEquals($now, $dt);
     }
 
-    public function testReadTimeSubSecond()
+    public function testReadQTimeSubSecond()
     {
         $this->markTestIncomplete('Sub-second accuracy not implemented');
 
@@ -184,32 +184,32 @@ class FunctionalTest extends TestCase
         $now = new \DateTime($time);
 
         $writer = new Writer();
-        $writer->writeTime($now);
+        $writer->writeQTime($now);
 
         $in = (string)$writer;
         $reader = Reader::fromString($in);
 
-        $dt = $reader->readTime();
+        $dt = $reader->readQTime();
         $this->assertEquals($now->format('U.u'), $dt->format('U.u'));
     }
 
-    public function testReadTimeMicrotime()
+    public function testReadQTimeMicrotime()
     {
         $this->markTestIncomplete('Sub-second accuracy not implemented');
 
         $now = microtime(true);
 
         $writer = new Writer();
-        $writer->writeTime($now);
+        $writer->writeQTime($now);
 
         $in = (string)$writer;
         $reader = Reader::fromString($in);
 
-        $dt = $reader->readTime();
+        $dt = $reader->readQTime();
         $this->assertEquals($now, $dt->format('U.u'));
     }
 
-    public function testReadDateTime()
+    public function testReadQDateTime()
     {
         $writer = new Writer();
         $writer->writeUInt(2457136); // day 2457136 - 2015-04-23
@@ -219,18 +219,18 @@ class FunctionalTest extends TestCase
         $in = (string)$writer;
         $reader = Reader::fromString($in);
 
-        $dt = $reader->readDateTime();
+        $dt = $reader->readQDateTime();
         $this->assertEquals('2015-04-23 14:02:03', $dt->format('Y-m-d H:i:s'));
 
         $writer = new Writer();
-        $writer->writeDateTime($dt);
+        $writer->writeQDateTime($dt);
 
         $out = (string)$writer;
 
         $this->assertEquals($in, $out);
     }
 
-    public function testReadDateTimeNull()
+    public function testReadQDateTimeNull()
     {
         $writer = new Writer();
         $writer->writeUInt(0);
@@ -240,7 +240,7 @@ class FunctionalTest extends TestCase
         $in = (string)$writer;
         $reader = Reader::fromString($in);
 
-        $dt = $reader->readDateTime();
+        $dt = $reader->readQDateTime();
         $this->assertNull($dt);
     }
 }

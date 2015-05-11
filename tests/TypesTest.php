@@ -33,7 +33,7 @@ class TypesTest extends TestCase
 
     public function testTypeDateTime()
     {
-        $this->assertEquals(Types::TYPE_DATETIME, $this->types->getTypeByValue(new \DateTime()));
+        $this->assertEquals(Types::TYPE_QDATETIME, $this->types->getTypeByValue(new \DateTime()));
     }
 
     /**

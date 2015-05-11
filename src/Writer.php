@@ -70,26 +70,26 @@ class Writer
         $this->writer->writeUInt8($int);
     }
 
-    public function writeStringList(array $strings)
+    public function writeQStringList(array $strings)
     {
         $this->writer->writeUInt32BE(count($strings));
 
         foreach ($strings as $string) {
-            $this->writeString($string);
+            $this->writeQString($string);
         }
     }
 
-    public function writeString($str)
+    public function writeQString($str)
     {
         if ($str !== null) {
             // transcode UTF-8 to UTF-16 (big endian)
             $str = mb_convert_encoding($str, 'UTF-16BE', 'UTF-8');
         }
 
-        $this->writeByteArray($str);
+        $this->writeQByteArray($str);
     }
 
-    public function writeByteArray($bytes)
+    public function writeQByteArray($bytes)
     {
         if ($bytes === null) {
             $this->writer->writeUInt32BE(0xFFFFFFFF);
@@ -105,16 +105,16 @@ class Writer
         $this->writer->writeUInt8($value ? 1 : 0);
     }
 
-    public function writeVariant($value, $type = null)
+    public function writeQVariant($value, $type = null)
     {
         if ($type === null) {
             $type = $this->types->getTypeByValue($value);
         }
 
         if (is_string($type)) {
-            $this->writeType(Types::TYPE_USER_TYPE);
+            $this->writeType(Types::TYPE_QUSER_TYPE);
 
-            return $this->writeUserTypeByName($value, $type);
+            return $this->writeQUserTypeByName($value, $type);
         }
 
         $name = 'write' . $this->types->getNameByType($type);
@@ -126,43 +126,43 @@ class Writer
         $this->$name($value);
     }
 
-    public function writeUserTypeByName($value, $userType)
+    public function writeQUserTypeByName($value, $userType)
     {
         if (!isset($this->userTypeMap[$userType])) {
             throw new \UnexpectedValueException('Unknown user type "' . $userType . '" does not have any data mapping');
         }
-        $this->writeByteArray($userType . "\x00");
+        $this->writeQByteArray($userType . "\x00");
 
         $fn = $this->userTypeMap[$userType];
         $fn($value, $this);
     }
 
-    public function writeVariantList(array $list, $explicitTypes = array())
+    public function writeQVariantList(array $list, $explicitTypes = array())
     {
         $this->writer->writeUInt32BE(count($list));
 
         foreach ($list as $index => $value) {
-            $this->writeVariant(
+            $this->writeQVariant(
                 $value,
                 isset($explicitTypes[$index]) ? $explicitTypes[$index] : null
             );
         }
     }
 
-    public function writeVariantMap(array $map, $explicitTypes = array())
+    public function writeQVariantMap(array $map, $explicitTypes = array())
     {
         $this->writer->writeUInt32BE(count($map));
 
         foreach ($map as $key => $value) {
-            $this->writeString($key);
-            $this->writeVariant(
+            $this->writeQString($key);
+            $this->writeQVariant(
                 $value,
                 isset($explicitTypes[$key]) ? $explicitTypes[$key] : null
             );
         }
     }
 
-    public function writeTime($timestamp)
+    public function writeQTime($timestamp)
     {
         if ($timestamp instanceof \DateTime) {
             $timestamp = $timestamp->format('U.u');
@@ -172,7 +172,7 @@ class Writer
         $this->writer->writeUInt32BE($msec);
     }
 
-    public function writeDateTime($timestamp)
+    public function writeQDateTime($timestamp)
     {
         if ($timestamp instanceof \DateTime) {
             $timestamp = $timestamp->format('U.u');

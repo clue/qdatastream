@@ -16,7 +16,7 @@ class ReaderTest extends TestCase
 
         $reader = Reader::fromString($in, null, $map);
 
-        $value = $reader->readVariant();
+        $value = $reader->readQVariant();
 
         $this->assertEquals(255, $value);
     }
@@ -24,11 +24,11 @@ class ReaderTest extends TestCase
     /**
      * @expectedException UnexpectedValueException
      */
-    public function testUserTypeUnknown()
+    public function testQUserTypeUnknown()
     {
         $in = "\x00\x00\x00\x7F" . "\x00" . "\x00\x00\x00\x05" . "demo\x00" . "\x00\x00\x00\xFF";
 
         $reader = Reader::fromString($in);
-        $reader->readVariant();
+        $reader->readQVariant();
     }
 }

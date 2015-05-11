@@ -29,7 +29,7 @@ class Reader
         $this->userTypeMap = $userTypeMap;
     }
 
-    public function readVariant()
+    public function readQVariant()
     {
         // https://github.com/sandsmark/QuasselDroid/blob/master/QuasselDroid/src/main/java/com/iskrembilen/quasseldroid/qtcomm/QVariant.java#L92
         $type = $this->reader->readUInt32BE();
@@ -46,26 +46,26 @@ class Reader
         return $this->$name();
     }
 
-    public function readVariantList()
+    public function readQVariantList()
     {
         $length = $this->reader->readUInt32BE();
 
         $list = array();
         for ($i = 0; $i < $length; ++$i) {
-            $list []= $this->readVariant();
+            $list []= $this->readQVariant();
         }
 
         return $list;
     }
 
-    public function readVariantMap()
+    public function readQVariantMap()
     {
         $length = $this->reader->readUInt32BE();
 
         $map = array();
         for ($i = 0; $i < $length; ++$i) {
-            $key = $this->readString();
-            $value = $this->readVariant();
+            $key = $this->readQString();
+            $value = $this->readQVariant();
 
             $map[$key] = $value;
         }
@@ -73,9 +73,9 @@ class Reader
         return $map;
     }
 
-    public function readString()
+    public function readQString()
     {
-        $str = $this->readByteArray();
+        $str = $this->readQByteArray();
         if ($str === null) {
             return $str;
         }
@@ -84,19 +84,19 @@ class Reader
         return mb_convert_encoding($str, 'UTF-8', 'UTF-16BE');
     }
 
-    public function readStringList()
+    public function readQStringList()
     {
         $length = $this->reader->readUInt32BE();
 
         $list = array();
         for ($i = 0; $i < $length; ++$i) {
-            $list []= $this->readString(true);
+            $list []= $this->readQString(true);
         }
 
         return $list;
     }
 
-    public function readByteArray()
+    public function readQByteArray()
     {
         $length = $this->reader->readUInt32BE();
 
@@ -142,15 +142,15 @@ class Reader
         return $this->reader->readUInt8() ? true : false;
     }
 
-    public function readUserType()
+    public function readQUserType()
     {
         // name is encoded as UTF-8 string (byte array) and ends with \0 as last byte
-        $name = substr($this->readByteArray(), 0, -1);
+        $name = substr($this->readQByteArray(), 0, -1);
 
-        return $this->readUserTypeByName($name);
+        return $this->readQUserTypeByName($name);
     }
 
-    public function readUserTypeByName($name)
+    public function readQUserTypeByName($name)
     {
         if (!isset($this->userTypeMap[$name])) {
             throw new \UnexpectedValueException('Unknown user type "' . $name . '" does not have any data mapping');
@@ -160,7 +160,7 @@ class Reader
         return $name($this);
     }
 
-    public function readTime()
+    public function readQTime()
     {
         $msec = $this->readUInt();
         // TODO: losing sub-second precision here..
@@ -172,7 +172,7 @@ class Reader
         return $dt;
     }
 
-    public function readDateTime()
+    public function readQDateTime()
     {
         $day = $this->readUInt();
         $msec = $this->readUInt();
