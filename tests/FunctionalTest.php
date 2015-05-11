@@ -136,6 +136,19 @@ class FunctionalTest extends TestCase
         $this->assertEquals(array('hello', 'world'), $reader->readQStringList());
     }
 
+    public function testQCharMultiple()
+    {
+        $writer = new Writer();
+        $writer->writeQChar('a');
+        $writer->writeQChar('ä');
+
+        $data = (string)$writer;
+        $reader = Reader::fromString($data);
+
+        $this->assertEquals('a', $reader->readQChar());
+        $this->assertEquals('ä', $reader->readQChar());
+    }
+
     public function testShorts()
     {
         $writer = new Writer();

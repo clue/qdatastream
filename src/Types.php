@@ -8,6 +8,7 @@ class Types
     const TYPE_BOOL = 1;
     const TYPE_INT = 2;
     const TYPE_UINT = 3;
+    const TYPE_QCHAR = 7;
     const TYPE_QVARIANT_MAP = 8;
     const TYPE_QVARIANT_LIST = 9;
     const TYPE_QSTRING = 10;
@@ -46,6 +47,7 @@ class Types
             Types::TYPE_BOOL => 'Bool',
             Types::TYPE_INT => 'Int',
             Types::TYPE_UINT => 'UInt',
+            TYPES::TYPE_QCHAR => 'QChar',
             Types::TYPE_QVARIANT_MAP => 'QVariantMap',
             Types::TYPE_QVARIANT_LIST => 'QVariantList',
             Types::TYPE_QSTRING => 'QString',
