@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0 (2014-05-11)
+
+*   BC break: Prefix all Qt types with "Q" to be more in line with QDataStream
+    ([#12](https://github.com/clue/php-qdatastream/pull/12))
+
+*   Feature: Add QChar type (multibyte character)
+    ([#13](https://github.com/clue/php-qdatastream/pull/13))
+
 ## 0.3.0 (2015-05-10)
 
 *   BC break: Merge `writeVariantType()` into `writeVariant()`
