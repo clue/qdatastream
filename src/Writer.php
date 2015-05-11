@@ -82,11 +82,15 @@ class Writer
     public function writeQString($str)
     {
         if ($str !== null) {
-            // transcode UTF-8 to UTF-16 (big endian)
-            $str = mb_convert_encoding($str, 'UTF-16BE', 'UTF-8');
+            $str = $this->conv($str);
         }
 
         $this->writeQByteArray($str);
+    }
+
+    public function writeQChar($char)
+    {
+        $this->writer->write($this->conv($char), 2);
     }
 
     public function writeQByteArray($bytes)
@@ -183,5 +187,11 @@ class Writer
         $this->writer->writeUInt32BE($days);
         $this->writer->writeUInt32BE($msec);
         $this->writer->writeInt8(1);
+    }
+
+    private function conv($str)
+    {
+        // transcode UTF-8 to UTF-16 (big endian)
+        return mb_convert_encoding($str, 'UTF-16BE', 'UTF-8');
     }
 }

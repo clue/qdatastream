@@ -76,12 +76,16 @@ class Reader
     public function readQString()
     {
         $str = $this->readQByteArray();
-        if ($str === null) {
-            return $str;
+        if ($str !== null) {
+            $str = $this->conv($str);
         }
 
-        // transcode UTF-16 (big endian) to UTF-8
-        return mb_convert_encoding($str, 'UTF-8', 'UTF-16BE');
+        return $str;
+    }
+
+    public function readQChar()
+    {
+        return $this->conv($this->reader->read(2));
     }
 
     public function readQStringList()
@@ -191,5 +195,11 @@ class Reader
         $dt->modify('+' . $secondsSinceMidnight . ' seconds');
 
         return $dt;
+    }
+
+    private function conv($str)
+    {
+        // transcode UTF-16 (big endian) to UTF-8
+        return mb_convert_encoding($str, 'UTF-8', 'UTF-16BE');
     }
 }
