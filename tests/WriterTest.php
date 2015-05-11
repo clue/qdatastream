@@ -13,7 +13,7 @@ class WriterTest extends TestCase
             },
             'user' => function ($data, Writer $writer) {
                 $writer->writeShort($data['id']);
-                $writer->writeString($data['name']);
+                $writer->writeQString($data['name']);
             }
         ));
     }
@@ -42,84 +42,84 @@ class WriterTest extends TestCase
         $this->assertEquals("\x00\x00\x00\x1F", (string)$this->writer);
     }
 
-    public function testBytesEmpty()
+    public function testQBytesEmpty()
     {
-        $this->writer->writeByteArray('');
+        $this->writer->writeQByteArray('');
         $this->assertEquals("\x00\x00\x00\x00", (string)$this->writer);
     }
 
-    public function testBytesNull()
+    public function testQBytesNull()
     {
-        $this->writer->writeByteArray(null);
+        $this->writer->writeQByteArray(null);
         $this->assertEquals("\xFF\xFF\xFF\xFF", (string)$this->writer);
     }
 
-    public function testBytesTwo()
+    public function testQBytesTwo()
     {
-        $this->writer->writeByteArray("\xAA\x12");
+        $this->writer->writeQByteArray("\xAA\x12");
         $this->assertEquals("\x00\x00\x00\x02" . "\xAA\x12", (string)$this->writer);
     }
 
-    public function testStringEmpty()
+    public function testQStringEmpty()
     {
-        $this->writer->writeString('');
+        $this->writer->writeQString('');
         $this->assertEquals("\x00\x00\x00\x00", (string)$this->writer);
     }
 
-    public function testStringNull()
+    public function testQStringNull()
     {
-        $this->writer->writeString(null);
+        $this->writer->writeQString(null);
         $this->assertEquals("\xFF\xFF\xFF\xFF", (string)$this->writer);
     }
 
-    public function testStringHi()
+    public function testQStringHi()
     {
-        $this->writer->writeString('Hi');
+        $this->writer->writeQString('Hi');
         $this->assertEquals("\x00\x00\x00\x04" . "\x00H\x00i", (string)$this->writer);
     }
 
-    public function testVariantBoolTrue()
+    public function testQVariantBoolTrue()
     {
-        $this->writer->writeVariant(true);
+        $this->writer->writeQVariant(true);
         $this->assertEquals("\x00\x00\x00\x01\x00" . "\x01", (string)$this->writer);
     }
 
-    public function testVariantBoolFalse()
+    public function testQVariantBoolFalse()
     {
-        $this->writer->writeVariant(false);
+        $this->writer->writeQVariant(false);
         $this->assertEquals("\x00\x00\x00\x01\x00" . "\x00", (string)$this->writer);
     }
 
-    public function testVariantInteger()
+    public function testQVariantInteger()
     {
-        $this->writer->writeVariant(31);
+        $this->writer->writeQVariant(31);
         $this->assertEquals("\x00\x00\x00\x02\x00" . "\x00\x00\x00\x1F", (string)$this->writer);
     }
 
-    public function testVariantStringEmpty()
+    public function testQVariantStringEmpty()
     {
-        $this->writer->writeVariant('');
+        $this->writer->writeQVariant('');
         $this->assertEquals("\x00\x00\x00\x0A\x00" . "\x00\x00\x00\x00", (string)$this->writer);
     }
 
-    public function testVariantStringHi()
+    public function testQVariantStringHi()
     {
-        $this->writer->writeVariant('Hi');
+        $this->writer->writeQVariant('Hi');
         $this->assertEquals("\x00\x00\x00\x0A\x00" . "\x00\x00\x00\x04" . "\x00H\x00i", (string)$this->writer);
     }
 
-    public function testVariantExplicit()
+    public function testQVariantExplicit()
     {
-        $this->writer->writeVariant(2015, Types::TYPE_USHORT);
+        $this->writer->writeQVariant(2015, Types::TYPE_USHORT);
         $this->assertEquals("\x00\x00\x00\x85\x00" . "\x07\xDF", (string)$this->writer);
     }
 
     /**
      * @expectedException InvalidArgumentException
      */
-    public function testVariantNullCanNotBeSerialized()
+    public function testQVariantNullCanNotBeSerialized()
     {
-        $this->writer->writeVariant(null);
+        $this->writer->writeQVariant(null);
     }
 
     public function testIntegersConcatenated()
@@ -129,40 +129,40 @@ class WriterTest extends TestCase
         $this->assertEquals("\x00\x00\x00\x00" . "\x00\x00\x01\x00", (string)$this->writer);
     }
 
-    public function testVariantIntegersConcatenated()
+    public function testQVariantIntegersConcatenated()
     {
-        $this->writer->writeVariant(0);
-        $this->writer->writeVariant(256);
+        $this->writer->writeQVariant(0);
+        $this->writer->writeQVariant(256);
         $this->assertEquals("\x00\x00\x00\x02\x00" . "\x00\x00\x00\x00" . "\x00\x00\x00\x02\x00" . "\x00\x00\x01\x00", (string)$this->writer);
     }
 
-    public function testUserTypeSimple()
+    public function testQUserTypeSimple()
     {
-        $this->writer->writeUserTypeByName(2015, 'year');
+        $this->writer->writeQUserTypeByName(2015, 'year');
         $this->assertEquals("\x00\x00\x00\x05" . "year\x00" . "\x07\xDF", (string)$this->writer);
     }
 
-    public function testVariantUserType()
+    public function testQVariantUserType()
     {
-        $this->writer->writeVariant(2015, 'year');
+        $this->writer->writeQVariant(2015, 'year');
         $this->assertEquals("\x00\x00\x00\x7F" . "\x00" . "\x00\x00\x00\x05" . "year\x00" . "\x07\xDF", (string)$this->writer);
     }
 
-    public function testUserTypeComplex()
+    public function testQUserTypeComplex()
     {
         $user = array(
             'name' => 'test',
             'id' => 10
         );
-        $this->writer->writeUserTypeByName($user, 'user');
+        $this->writer->writeQUserTypeByName($user, 'user');
         $this->assertEquals("\x00\x00\x00\x05" . "user\x00" . "\x00\x0A" . "\x00\x00\x00\x08" . "\x00t\x00e\x00s\x00t", (string)$this->writer);
     }
 
     /**
      * @expectedException UnexpectedValueException
      */
-    public function testUserTypeInvalid()
+    public function testQUserTypeInvalid()
     {
-        $this->writer->writeUserTypeByName(10, 'unknown');
+        $this->writer->writeQUserTypeByName(10, 'unknown');
     }
 }

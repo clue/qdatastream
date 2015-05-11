@@ -8,14 +8,14 @@ class Types
     const TYPE_BOOL = 1;
     const TYPE_INT = 2;
     const TYPE_UINT = 3;
-    const TYPE_VARIANT_MAP = 8;
-    const TYPE_VARIANT_LIST = 9;
-    const TYPE_STRING = 10;
-    const TYPE_STRING_LIST = 11;
-    const TYPE_BYTE_ARRAY = 12;
-    const TYPE_TIME = 15;
-    const TYPE_DATETIME = 16;
-    const TYPE_USER_TYPE = 127;
+    const TYPE_QVARIANT_MAP = 8;
+    const TYPE_QVARIANT_LIST = 9;
+    const TYPE_QSTRING = 10;
+    const TYPE_QSTRING_LIST = 11;
+    const TYPE_QBYTE_ARRAY = 12;
+    const TYPE_QTIME = 15;
+    const TYPE_QDATETIME = 16;
+    const TYPE_QUSER_TYPE = 127;
     const TYPE_SHORT = 130;
     const TYPE_CHAR = 131;
     const TYPE_USHORT = 133;
@@ -26,15 +26,15 @@ class Types
         if (is_int($value)) {
             return self::TYPE_INT;
         } elseif (is_string($value)) {
-            return self::TYPE_STRING;
+            return self::TYPE_QSTRING;
         } elseif (is_bool($value)) {
             return self::TYPE_BOOL;
         } elseif ($this->isList($value)) {
-            return self::TYPE_VARIANT_LIST;
+            return self::TYPE_QVARIANT_LIST;
         } elseif ($this->isMap($value)) {
-            return self::TYPE_VARIANT_MAP;
+            return self::TYPE_QVARIANT_MAP;
         } elseif ($value instanceof \DateTime) {
-            return self::TYPE_DATETIME;
+            return self::TYPE_QDATETIME;
         } else {
             throw new \InvalidArgumentException('Can not guess variant type for type "' . gettype($value) . '"');
         }
@@ -46,14 +46,14 @@ class Types
             Types::TYPE_BOOL => 'Bool',
             Types::TYPE_INT => 'Int',
             Types::TYPE_UINT => 'UInt',
-            Types::TYPE_VARIANT_MAP => 'VariantMap',
-            Types::TYPE_VARIANT_LIST => 'VariantList',
-            Types::TYPE_STRING => 'String',
-            Types::TYPE_STRING_LIST => 'StringList',
-            Types::TYPE_BYTE_ARRAY => 'ByteArray',
-            Types::TYPE_TIME => 'Time',
-            Types::TYPE_DATETIME => 'DateTime',
-            Types::TYPE_USER_TYPE => 'UserType',
+            Types::TYPE_QVARIANT_MAP => 'QVariantMap',
+            Types::TYPE_QVARIANT_LIST => 'QVariantList',
+            Types::TYPE_QSTRING => 'QString',
+            Types::TYPE_QSTRING_LIST => 'QStringList',
+            Types::TYPE_QBYTE_ARRAY => 'QByteArray',
+            Types::TYPE_QTIME => 'QTime',
+            Types::TYPE_QDATETIME => 'QDateTime',
+            Types::TYPE_QUSER_TYPE => 'QUserType',
             Types::TYPE_SHORT => 'Short',
             Types::TYPE_CHAR => 'Char',
             Types::TYPE_USHORT => 'UShort',
