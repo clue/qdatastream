@@ -1,6 +1,8 @@
 <?php
 
 use Clue\QDataStream\Reader;
+use Clue\QDataStream\QVariant;
+use Clue\QDataStream\Types;
 
 class ReaderTest extends TestCase
 {
@@ -19,6 +21,17 @@ class ReaderTest extends TestCase
         $value = $reader->readQVariant();
 
         $this->assertEquals(255, $value);
+
+        return Reader::fromString($in, null, $map);
+    }
+
+    /**
+     * @depends testUserTypeMapping
+     * @param Reader $reader
+     */
+    public function testUserTypeMappingAsVariant(Reader $reader)
+    {
+        $this->assertEquals(new QVariant(255, 'demo'), $reader->readQVariant(false));
     }
 
     /**
