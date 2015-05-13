@@ -2,6 +2,7 @@
 
 use Clue\QDataStream\Writer;
 use Clue\QDataStream\Types;
+use Clue\QDataStream\QVariant;
 
 class WriterTest extends TestCase
 {
@@ -110,7 +111,7 @@ class WriterTest extends TestCase
 
     public function testQVariantExplicit()
     {
-        $this->writer->writeQVariant(2015, Types::TYPE_USHORT);
+        $this->writer->writeQVariant(new QVariant(2015, Types::TYPE_USHORT));
         $this->assertEquals("\x00\x00\x00\x85\x00" . "\x07\xDF", (string)$this->writer);
     }
 
@@ -144,7 +145,7 @@ class WriterTest extends TestCase
 
     public function testQVariantUserType()
     {
-        $this->writer->writeQVariant(2015, 'year');
+        $this->writer->writeQVariant(new QVariant(2015, 'year'));
         $this->assertEquals("\x00\x00\x00\x7F" . "\x00" . "\x00\x00\x00\x05" . "year\x00" . "\x07\xDF", (string)$this->writer);
     }
 

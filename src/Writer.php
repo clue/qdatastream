@@ -109,9 +109,12 @@ class Writer
         $this->writer->writeUInt8($value ? 1 : 0);
     }
 
-    public function writeQVariant($value, $type = null)
+    public function writeQVariant($value)
     {
-        if ($type === null) {
+        if ($value instanceof QVariant) {
+            $type = $value->getType();
+            $value = $value->getValue();
+        } else {
             $type = $this->types->getTypeByValue($value);
         }
 
@@ -141,28 +144,22 @@ class Writer
         $fn($value, $this);
     }
 
-    public function writeQVariantList(array $list, $explicitTypes = array())
+    public function writeQVariantList(array $list)
     {
         $this->writer->writeUInt32BE(count($list));
 
-        foreach ($list as $index => $value) {
-            $this->writeQVariant(
-                $value,
-                isset($explicitTypes[$index]) ? $explicitTypes[$index] : null
-            );
+        foreach ($list as $value) {
+            $this->writeQVariant($value);
         }
     }
 
-    public function writeQVariantMap(array $map, $explicitTypes = array())
+    public function writeQVariantMap(array $map)
     {
         $this->writer->writeUInt32BE(count($map));
 
         foreach ($map as $key => $value) {
             $this->writeQString($key);
-            $this->writeQVariant(
-                $value,
-                isset($explicitTypes[$key]) ? $explicitTypes[$key] : null
-            );
+            $this->writeQVariant($value);
         }
     }
 
