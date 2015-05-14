@@ -3,6 +3,7 @@
 use Clue\QDataStream\Reader;
 use Clue\QDataStream\Writer;
 use Clue\QDataStream\Types;
+use Clue\QDataStream\QVariant;
 
 class FunctionalTest extends TestCase
 {
@@ -49,6 +50,28 @@ class FunctionalTest extends TestCase
         $reader = Reader::fromString($data);
 
         $this->assertEquals($in, $reader->readQVariant());
+
+        return Reader::fromString($data);
+    }
+
+    /**
+     * @depends testQVariantAutoTypes
+     * @param Reader $reader
+     */
+    public function testQVariantAutoTypeAsQVariant(Reader $reader)
+    {
+        $this->assertEquals(
+            new QVariant(array(
+                'hello' => new QVariant('world', Types::TYPE_QSTRING),
+                'bool' => new QVariant(true, Types::TYPE_BOOL),
+                'year' => new QVariant(2015, Types::TYPE_INT),
+                'list' => new QVariant(array(
+                    new QVariant('first', Types::TYPE_QSTRING),
+                    new QVariant('second', Types::TYPE_QSTRING)
+                ), Types::TYPE_QVARIANT_LIST)
+            ), Types::TYPE_QVARIANT_MAP),
+            $reader->readQVariant(false)
+        );
     }
 
     public function testQVariantExplicitCharType()
@@ -56,7 +79,7 @@ class FunctionalTest extends TestCase
         $in = 100;
 
         $writer = new Writer();
-        $writer->writeQVariant($in, Types::TYPE_CHAR);
+        $writer->writeQVariant(new QVariant($in, Types::TYPE_CHAR));
 
         $data = (string)$writer;
         $reader = Reader::fromString($data);
@@ -67,34 +90,43 @@ class FunctionalTest extends TestCase
     public function testQVariantListSomeExplicit()
     {
         $in = array(
+            new QVariant(-10, Types::TYPE_CHAR),
+            20,
+            -300
+        );
+        $expected = array(
             -10,
             20,
             -300
         );
 
         $writer = new Writer();
-        $writer->writeQVariantList($in, array(0 => Types::TYPE_CHAR));
+        $writer->writeQVariantList($in);
 
         $data = (string)$writer;
-        $reader = Reader::fromString($data);
 
-        $this->assertEquals($in, $reader->readQVariantList());
+        $reader = Reader::fromString($data);
+        $this->assertEquals($expected, $reader->readQVariantList());
     }
 
     public function testQVariantMapSomeExplicit()
     {
         $in = array(
+            'id' => new QVariant(62000, Types::TYPE_USHORT),
+            'name' => 'test'
+        );
+        $expected = array(
             'id' => 62000,
             'name' => 'test'
         );
 
         $writer = new Writer();
-        $writer->writeQVariantMap($in, array('id' => Types::TYPE_USHORT));
+        $writer->writeQVariantMap($in);
 
         $data = (string)$writer;
         $reader = Reader::fromString($data);
 
-        $this->assertEquals($in, $reader->readQVariantMap());
+        $this->assertEquals($expected, $reader->readQVariantMap());
     }
 
     public function testQUserType()
@@ -110,7 +142,7 @@ class FunctionalTest extends TestCase
                 $writer->writeQString($data['name']);
             }
         ));
-        $writer->writeQVariant($in, 'user');
+        $writer->writeQVariant(new QVariant($in, 'user'));
 
         $data = (string)$writer;
         $reader = Reader::fromString($data, null, array(
@@ -134,6 +166,8 @@ class FunctionalTest extends TestCase
         $reader = Reader::fromString($data);
 
         $this->assertEquals(array('hello', 'world'), $reader->readQStringList());
+
+        return Reader::fromString($data);
     }
 
     public function testQCharMultiple()
