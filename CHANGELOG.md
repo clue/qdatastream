@@ -1,6 +1,31 @@
 # Changelog
 
-## 0.4.0 (2014-05-11)
+## 0.5.0 (2015-05-14)
+
+*   BC break: Use QVariant class to encode all custom type handling instead
+    of passing explicit type constants to
+    ([#14](https://github.com/clue/php-qdatastream/pull/14))
+    
+    ```php
+// unchanged: automatic type guessing
+$writer->writeQVariant(10);
+
+// old: explicit types via type arguments
+$writer->writeQVariant(10, Types::TYPE_QCHAR);
+
+// new: explicit types via QVariant
+$writer->writeQVariant(new QVariant(10, Types::TYPE_QCHAR));
+```
+
+*   Feature: Support writing nested QVariantList/QVariantMap objects with
+    explicit types.
+    ([#14](https://github.com/clue/php-qdatastream/pull/14))
+
+*   Feature: Support reading into QVariant objects in order to get access to the
+    variant value plus the type encoding.
+    ([#14](https://github.com/clue/php-qdatastream/pull/14))
+
+## 0.4.0 (2015-05-11)
 
 *   BC break: Prefix all Qt types with "Q" to be more in line with QDataStream
     ([#12](https://github.com/clue/php-qdatastream/pull/12))
