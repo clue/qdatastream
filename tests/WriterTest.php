@@ -79,6 +79,14 @@ class WriterTest extends TestCase
         $this->assertEquals("\x00\x00\x00\x04" . "\x00H\x00i", (string)$this->writer);
     }
 
+    public function testQTimeExactlyMidnightIsNullMilliseconds()
+    {
+        $now = mktime(0, 0, 0, 9, 19, 2016);
+
+        $this->writer->writeQTime($now);
+        $this->assertEquals("\x00\x00\x00\x00", (string)$this->writer);
+    }
+
     public function testQVariantBoolTrue()
     {
         $this->writer->writeQVariant(true);
