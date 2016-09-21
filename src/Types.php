@@ -41,25 +41,32 @@ class Types
         }
     }
 
+    /**
+     * Returns the type name string for the given type constant
+     *
+     * @param int $type
+     * @return string
+     * @throws \InvalidArgumentException
+     */
     public function getNameByType($type)
     {
         static $map = array(
-            Types::TYPE_BOOL => 'Bool',
-            Types::TYPE_INT => 'Int',
-            Types::TYPE_UINT => 'UInt',
-            TYPES::TYPE_QCHAR => 'QChar',
-            Types::TYPE_QVARIANT_MAP => 'QVariantMap',
-            Types::TYPE_QVARIANT_LIST => 'QVariantList',
-            Types::TYPE_QSTRING => 'QString',
-            Types::TYPE_QSTRING_LIST => 'QStringList',
-            Types::TYPE_QBYTE_ARRAY => 'QByteArray',
-            Types::TYPE_QTIME => 'QTime',
-            Types::TYPE_QDATETIME => 'QDateTime',
-            Types::TYPE_QUSER_TYPE => 'QUserType',
-            Types::TYPE_SHORT => 'Short',
-            Types::TYPE_CHAR => 'Char',
-            Types::TYPE_USHORT => 'UShort',
-            Types::TYPE_UCHAR => 'UChar',
+            self::TYPE_BOOL => 'Bool',
+            self::TYPE_INT => 'Int',
+            self::TYPE_UINT => 'UInt',
+            self::TYPE_QCHAR => 'QChar',
+            self::TYPE_QVARIANT_MAP => 'QVariantMap',
+            self::TYPE_QVARIANT_LIST => 'QVariantList',
+            self::TYPE_QSTRING => 'QString',
+            self::TYPE_QSTRING_LIST => 'QStringList',
+            self::TYPE_QBYTE_ARRAY => 'QByteArray',
+            self::TYPE_QTIME => 'QTime',
+            self::TYPE_QDATETIME => 'QDateTime',
+            self::TYPE_QUSER_TYPE => 'QUserType',
+            self::TYPE_SHORT => 'Short',
+            self::TYPE_CHAR => 'Char',
+            self::TYPE_USHORT => 'UShort',
+            self::TYPE_UCHAR => 'UChar',
         );
 
         if (!isset($map[$type])) {

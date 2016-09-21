@@ -2,7 +2,6 @@
 
 use Clue\QDataStream\Reader;
 use Clue\QDataStream\QVariant;
-use Clue\QDataStream\Types;
 
 class ReaderTest extends TestCase
 {

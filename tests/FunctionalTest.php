@@ -87,6 +87,19 @@ class FunctionalTest extends TestCase
         $this->assertEquals($in, $reader->readQVariant());
     }
 
+    public function testQVariantExplicitQCharType()
+    {
+        $in = 'ö';
+
+        $writer = new Writer();
+        $writer->writeQVariant(new QVariant($in, Types::TYPE_QCHAR));
+
+        $data = (string)$writer;
+        $reader = Reader::fromString($data);
+
+        $this->assertEquals($in, $reader->readQVariant());
+    }
+
     public function testQVariantListSomeExplicit()
     {
         $in = array(
