@@ -2,7 +2,6 @@
 
 namespace Clue\QDataStream;
 
-use InvalidArgumentException;
 use Iodophor\Io\StringWriter as IoWriter;
 
 // http://doc.qt.io/qt-4.8/qdatastream.html#details

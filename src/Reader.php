@@ -2,7 +2,6 @@
 
 namespace Clue\QDataStream;
 
-use Clue\QDataStream\Writer;
 use Iodophor\Io\Reader as IoReader;
 use Iodophor\Io\StringReader;
 
