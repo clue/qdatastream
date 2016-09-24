@@ -275,11 +275,9 @@ class FunctionalTest extends TestCase
 
     public function testReadQTimeSubSecond()
     {
-        $this->markTestIncomplete('Sub-second accuracy not implemented');
-
         date_default_timezone_set('UTC');
 
-        $time = '2015-05-01 16:02:03.413705';
+        $time = '16:02:03.413';
         $now = new \DateTime($time);
 
         $writer = new Writer();
@@ -292,10 +290,8 @@ class FunctionalTest extends TestCase
         $this->assertEquals($now->format('U.u'), $dt->format('U.u'));
     }
 
-    public function testReadQTimeMicrotime()
+    public function testReadQTimeMicrotimeWithMillisecondAccuracy()
     {
-        $this->markTestIncomplete('Sub-second accuracy not implemented');
-
         date_default_timezone_set('UTC');
 
         $now = microtime(true);
@@ -307,7 +303,7 @@ class FunctionalTest extends TestCase
         $reader = Reader::fromString($in);
 
         $dt = $reader->readQTime();
-        $this->assertEquals($now, $dt->format('U.u'));
+        $this->assertEquals($now, $dt->format('U.u'), '', 0.001);
     }
 
     public function testReadQDateTimeNow()
@@ -398,5 +394,38 @@ class FunctionalTest extends TestCase
 
         $dt = $reader->readQDateTime();
         $this->assertNull($dt);
+    }
+
+    public function testReadQDateTimeSubSecond()
+    {
+        date_default_timezone_set('UTC');
+
+        $time = '16:02:03.413';
+        $now = new \DateTime($time);
+
+        $writer = new Writer();
+        $writer->writeQDateTime($now);
+
+        $in = (string)$writer;
+        $reader = Reader::fromString($in);
+
+        $dt = $reader->readQDateTime();
+        $this->assertEquals($now->format('U.u'), $dt->format('U.u'));
+    }
+
+    public function testReadQDateTimeMicrotimeWithMillisecondAccuracy()
+    {
+        date_default_timezone_set('UTC');
+
+        $now = microtime(true);
+
+        $writer = new Writer();
+        $writer->writeQDateTime($now);
+
+        $in = (string)$writer;
+        $reader = Reader::fromString($in);
+
+        $dt = $reader->readQDateTime();
+        $this->assertEquals($now, $dt->format('U.u'), '', 0.001);
     }
 }

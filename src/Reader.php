@@ -188,11 +188,11 @@ class Reader
     public function readQTime()
     {
         $msec = $this->readUInt();
-        // TODO: losing sub-second precision here..
-        $secondsSinceMidnight = round($msec / 1000);
 
-        $dt = new \DateTime('midnight');
-        $dt->modify('+' . $secondsSinceMidnight . ' seconds');
+        $time = strtotime('midnight') + $msec / 1000;
+
+        $dt = \DateTime::createFromFormat('U.u', sprintf('%.6F', $time));
+        $dt->setTimezone(new \DateTimeZone(date_default_timezone_get()));
 
         return $dt;
     }
@@ -212,15 +212,10 @@ class Reader
             return null;
         }
 
-        $daysSinceUnixEpoche = $day - 2440588; // unix epoche
-        // TODO: losing sub-second precision here..
-        $secondsSinceMidnight = round($msec / 1000);
+        // days since unix epoche in seconds plus msec in seconds
+        $time = ($day - 2440588) * 86400 + $msec / 1000;
 
-        $dt = new \DateTime('1970-01-01', $isUtc ? new \DateTimeZone('UTC') : null);
-        $dt->modify('+' . $daysSinceUnixEpoche . ' days');
-        $dt->modify('+' . $secondsSinceMidnight . ' seconds');
-
-        // apply default timezone after jumping to correct date (account for DST)
+        $dt = \DateTime::createFromFormat('U.u', sprintf('%.6F', $time));
         $dt->setTimezone(new \DateTimeZone(date_default_timezone_get()));
 
         return $dt;
