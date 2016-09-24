@@ -99,6 +99,29 @@ class WriterTest extends TestCase
         $this->assertEquals("\x00\x00\x00\x00", (string)$this->writer);
     }
 
+    public function testQTimeExactlyMidnightIsNullMillisecondsFromForeignTimezone()
+    {
+        date_default_timezone_set('Europe/Berlin');
+
+        $now = new DateTime();
+        $now->setTime(0, 0, 0);
+
+        date_default_timezone_set('UTC');
+
+        $this->writer->writeQTime($now);
+        $this->assertEquals("\x00\x00\x00\x00", (string)$this->writer);
+    }
+
+    public function testQTimeMillisecondsAfterMidnight()
+    {
+        date_default_timezone_set('UTC');
+
+        $now = gmmktime(0, 0, 0, 9, 19, 2016) + 0.018;
+
+        $this->writer->writeQTime($now);
+        $this->assertEquals("\x00\x00\x00\x12", (string)$this->writer);
+    }
+
     public function testQVariantBoolTrue()
     {
         $this->writer->writeQVariant(true);

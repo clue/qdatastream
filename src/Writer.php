@@ -174,16 +174,35 @@ class Writer
      * this number has no indication this is not the current day, so you're
      * likely going to lose the day information and may end up with wrong dates.
      *
+     * The QTime will be sent as the number of milliseconds since midnight,
+     * without any awareness of timezone or DST properties. Thus, writing this
+     * will assume it is relative to the current timezone. This means that the
+     * time "14:10:34.5108" will be 14h after midnight, irrespective of its
+     * actual timezone. The receiving side may not be aware of your local
+     * timezone, so it can only assume its own local timezone as a base.
+     *
+     * Make sure to use (i.e. convert via `setTimeZone()`) to the same timezone
+     * on both sides or consider using the `writeQDateTime()` method instead,
+     * which uses absolute time stamps and does not suffer from this.
+     *
+     * You can also pass a Unix timestamp to this function, this will be assumed
+     * to be relative to the local midnight timestamp. If you need more control
+     * over your timezone, consider passing a `DateTime` object instead.
+     *
      * @param DateTime|float $timestamp
      * @see self::writeQDateTime
      */
     public function writeQTime($timestamp)
     {
         if ($timestamp instanceof \DateTime) {
-            $timestamp = $timestamp->format('U.u');
+            $msec = $timestamp->format('H') * 3600000 +
+                    $timestamp->format('i') * 60000 +
+                    $timestamp->format('s') * 1000 +
+                    (int)($timestamp->format('0.u') * 1000);
+        } else {
+            $msec = round(($timestamp - strtotime('midnight', (int)$timestamp)) * 1000);
         }
 
-        $msec = round(($timestamp - strtotime('midnight', (int)$timestamp)) * 1000);
         $this->writer->writeUInt32BE($msec);
     }
 
