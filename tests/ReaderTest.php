@@ -24,6 +24,36 @@ class ReaderTest extends TestCase
         return Reader::fromString($in, null, $map);
     }
 
+    public function testReadNullQTimeIsExactlyMidnight()
+    {
+        date_default_timezone_set('UTC');
+
+        $midnight = new DateTime('midnight');
+
+        $in = "\x00\x00\x00\x00";
+        $reader = Reader::fromString($in);
+
+        $value = $reader->readQTime();
+
+        $this->assertEquals($midnight, $value);
+    }
+
+    public function testReadNullQTimeIsExactlyMidnightWithCorrectTimezone()
+    {
+        date_default_timezone_set('Europe/Berlin');
+
+        $midnight = new DateTime('midnight');
+
+        $in = "\x00\x00\x00\x00";
+        $reader = Reader::fromString($in);
+
+        $value = $reader->readQTime();
+
+        $this->assertEquals($midnight, $value);
+
+        $this->assertEquals('Europe/Berlin', $value->getTimezone()->getName());
+    }
+
     /**
      * @depends testUserTypeMapping
      * @param Reader $reader
