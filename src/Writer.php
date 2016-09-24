@@ -211,7 +211,8 @@ class Writer
         if ($timestamp instanceof \DateTime) {
             $timestamp = $timestamp->format('U.u');
         }
-        $msec = round(($timestamp % 86400) * 1000);
+
+        $msec = round(($timestamp - floor($timestamp / 86400) * 86400) * 1000);
         $days = floor($timestamp / 86400) + 2440588;
 
         $this->writer->writeUInt32BE($days);
