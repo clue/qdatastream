@@ -222,7 +222,7 @@ class FunctionalTest extends TestCase
         $this->assertEquals(250, $reader->readUChar());
     }
 
-    public function testReadQTime()
+    public function testReadQTimeNow()
     {
         $now = new \DateTime();
 
@@ -234,6 +234,21 @@ class FunctionalTest extends TestCase
 
         $dt = $reader->readQTime();
         $this->assertEquals($now, $dt);
+    }
+
+    public function testReadQTimeNotTodayCanNotReturnDayInPast()
+    {
+        $time = '2015-05-01 16:02:03';
+        $now = new \DateTime($time);
+
+        $writer = new Writer();
+        $writer->writeQTime($now);
+
+        $in = (string)$writer;
+        $reader = Reader::fromString($in);
+
+        $dt = $reader->readQTime();
+        $this->assertNotEquals($now->format('U.u'), $dt->format('U.u'));
     }
 
     public function testReadQTimeSubSecond()

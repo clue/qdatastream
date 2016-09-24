@@ -162,13 +162,28 @@ class Writer
         }
     }
 
+    /**
+     * Writes a QTime for the given timestamp or DateTime object
+     *
+     * The QTime will only carry the number of milliseconds since midnight.
+     * This means you should probably only use this for times within the current
+     * day.
+     *
+     * If you pass a timestamp from any other day, it will write the number of
+     * milliseconds that passed since that day's midnight. Note that reading
+     * this number has no indication this is not the current day, so you're
+     * likely going to lose the day information and may end up with wrong dates.
+     *
+     * @param DateTime|float $timestamp
+     * @see self::writeQDateTime
+     */
     public function writeQTime($timestamp)
     {
         if ($timestamp instanceof \DateTime) {
             $timestamp = $timestamp->format('U.u');
         }
 
-        $msec = round(($timestamp - strtotime('midnight')) * 1000);
+        $msec = round(($timestamp - strtotime('midnight', (int)$timestamp)) * 1000);
         $this->writer->writeUInt32BE($msec);
     }
 
