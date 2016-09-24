@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.6.0 (2016-09-24)
+
+*   Feature / BC break: QTime and QDateTime are relative to default time zone and obey given time zone
+    (#18 by @clue)
+
+    ```php
+    date_default_timezone_set('GMT');
+    $date = $reader->readQDateTime();
+    assert($date->getTimeZone()->getName() === 'GMT');
+    ```
+
+*   Feature: Support millisecond accuracy for QTime and QDateTime
+    (#20 by @clue)
+
+*   Feature: Support QTime objects not within the current day
+    (#17 by @clue)
+
+*   Update class name references and improve test suite
+    (#16 by @clue)
+
 ## 0.5.0 (2015-05-14)
 
 *   BC break: Use QVariant class to encode all custom type handling instead
