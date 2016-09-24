@@ -81,6 +81,18 @@ class WriterTest extends TestCase
 
     public function testQTimeExactlyMidnightIsNullMilliseconds()
     {
+        date_default_timezone_set('UTC');
+
+        $now = gmmktime(0, 0, 0, 9, 19, 2016);
+
+        $this->writer->writeQTime($now);
+        $this->assertEquals("\x00\x00\x00\x00", (string)$this->writer);
+    }
+
+    public function testQTimeExactlyMidnightIsNullMillisecondsWithTimezone()
+    {
+        date_default_timezone_set('Europe/Berlin');
+
         $now = mktime(0, 0, 0, 9, 19, 2016);
 
         $this->writer->writeQTime($now);

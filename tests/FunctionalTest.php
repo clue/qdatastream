@@ -224,6 +224,8 @@ class FunctionalTest extends TestCase
 
     public function testReadQTimeNow()
     {
+        date_default_timezone_set('UTC');
+
         $now = new \DateTime();
 
         $writer = new Writer();
@@ -236,8 +238,28 @@ class FunctionalTest extends TestCase
         $this->assertEquals($now, $dt);
     }
 
+    public function testReadQTimeNowCorrectTimezone()
+    {
+        date_default_timezone_set('Europe/Berlin');
+
+        $now = new \DateTime();
+
+        $writer = new Writer();
+        $writer->writeQTime($now);
+
+        $in = (string)$writer;
+        $reader = Reader::fromString($in);
+
+        $dt = $reader->readQTime();
+        $this->assertEquals($now, $dt);
+
+        $this->assertEquals('Europe/Berlin', $dt->getTimezone()->getName());
+    }
+
     public function testReadQTimeNotTodayCanNotReturnDayInPast()
     {
+        date_default_timezone_set('UTC');
+
         $time = '2015-05-01 16:02:03';
         $now = new \DateTime($time);
 
@@ -254,6 +276,8 @@ class FunctionalTest extends TestCase
     public function testReadQTimeSubSecond()
     {
         $this->markTestIncomplete('Sub-second accuracy not implemented');
+
+        date_default_timezone_set('UTC');
 
         $time = '2015-05-01 16:02:03.413705';
         $now = new \DateTime($time);
@@ -272,6 +296,8 @@ class FunctionalTest extends TestCase
     {
         $this->markTestIncomplete('Sub-second accuracy not implemented');
 
+        date_default_timezone_set('UTC');
+
         $now = microtime(true);
 
         $writer = new Writer();
@@ -284,8 +310,61 @@ class FunctionalTest extends TestCase
         $this->assertEquals($now, $dt->format('U.u'));
     }
 
+    public function testReadQDateTimeNow()
+    {
+        date_default_timezone_set('UTC');
+
+        $now = new \DateTime();
+
+        $writer = new Writer();
+        $writer->writeQDateTime($now);
+
+        $in = (string)$writer;
+        $reader = Reader::fromString($in);
+
+        $dt = $reader->readQDateTime();
+        $this->assertEquals($now, $dt);
+    }
+
+    public function testReadQDateTimeNowWithCorrectTimezone()
+    {
+        date_default_timezone_set('Europe/Berlin');
+
+        $now = new \DateTime();
+
+        $writer = new Writer();
+        $writer->writeQDateTime($now);
+
+        $in = (string)$writer;
+        $reader = Reader::fromString($in);
+
+        $dt = $reader->readQDateTime();
+        $this->assertEquals($now, $dt);
+
+        $this->assertEquals('Europe/Berlin', $dt->getTimezone()->getName());
+    }
+
+    public function testReadQDateTimeWithDST()
+    {
+        date_default_timezone_set('Europe/Berlin');
+
+        $now = '2015-09-22 09:45:12';
+        $now = new \DateTime($now);
+
+        $writer = new Writer();
+        $writer->writeQDateTime($now);
+
+        $in = (string)$writer;
+        $reader = Reader::fromString($in);
+
+        $dt = $reader->readQDateTime();
+        $this->assertEquals($now, $dt);
+    }
+
     public function testReadQDateTime()
     {
+        date_default_timezone_set('UTC');
+
         $writer = new Writer();
         $writer->writeUInt(2457136); // day 2457136 - 2015-04-23
         $writer->writeUInt(50523000); // msec 50523000 - 14:02:03 UTC
@@ -307,6 +386,8 @@ class FunctionalTest extends TestCase
 
     public function testReadQDateTimeNull()
     {
+        date_default_timezone_set('UTC');
+
         $writer = new Writer();
         $writer->writeUInt(0);
         $writer->writeUInt(0xFFFFFFFF);

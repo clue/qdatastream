@@ -176,6 +176,15 @@ class Reader
         return $name($this);
     }
 
+    /**
+     * Reads a QTime from the stream and returns a DateTime with current timezone
+     *
+     * The QTime will be sent as the number of milliseconds since midnight,
+     * without any awareness of timezone or DST properties. Thus, reading this
+     * in will assume it is relative to the current timezone.
+     *
+     * @return \DateTime
+     */
     public function readQTime()
     {
         $msec = $this->readUInt();
@@ -188,6 +197,11 @@ class Reader
         return $dt;
     }
 
+    /**
+     * Reads a QDateTime from the stream and returns a DateTime with current timezone
+     *
+     * @return \DateTime|NULL
+     */
     public function readQDateTime()
     {
         $day = $this->readUInt();
@@ -205,6 +219,9 @@ class Reader
         $dt = new \DateTime('1970-01-01', $isUtc ? new \DateTimeZone('UTC') : null);
         $dt->modify('+' . $daysSinceUnixEpoche . ' days');
         $dt->modify('+' . $secondsSinceMidnight . ' seconds');
+
+        // apply default timezone after jumping to correct date (account for DST)
+        $dt->setTimezone(new \DateTimeZone(date_default_timezone_get()));
 
         return $dt;
     }
