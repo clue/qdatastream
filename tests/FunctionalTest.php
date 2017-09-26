@@ -20,6 +20,17 @@ class FunctionalTest extends TestCase
         $this->assertEquals($in, $reader->readQString());
     }
 
+    public function testQStringEmpty()
+    {
+        $writer = new Writer();
+        $writer->writeQString('');
+
+        $data = (string)$writer;
+        $reader = Reader::fromString($data);
+
+        $this->assertEquals('', $reader->readQString());
+    }
+
     public function testQStringNull()
     {
         $writer = new Writer();

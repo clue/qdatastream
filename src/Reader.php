@@ -7,10 +7,10 @@ use Iodophor\Io\StringReader;
 
 class Reader
 {
-    private $reader;
     private $types;
     private $userTypeMap;
     private $hasNull = true;
+    private $buffer = '';
 
     public static function fromString($str, Types $types = null, $userTypeMap = array())
     {
@@ -23,7 +23,7 @@ class Reader
             $types = new Types();
         }
 
-        $this->reader = $reader;
+        $this->buffer = $reader->read($reader->getSize());
         $this->types = $types;
         $this->userTypeMap = $userTypeMap;
     }
@@ -31,7 +31,7 @@ class Reader
     public function readQVariant($asNative = true)
     {
         // https://github.com/sandsmark/QuasselDroid/blob/master/QuasselDroid/src/main/java/com/iskrembilen/quasseldroid/qtcomm/QVariant.java#L92
-        $type = $this->reader->readUInt32BE();
+        $type = $this->readUInt();
 
         if ($this->hasNull) {
             /*$isNull = */ $this->readBool();
@@ -54,7 +54,7 @@ class Reader
 
     public function readQVariantList($asNative = true)
     {
-        $length = $this->reader->readUInt32BE();
+        $length = $this->readUInt();
 
         $list = array();
         for ($i = 0; $i < $length; ++$i) {
@@ -66,7 +66,7 @@ class Reader
 
     public function readQVariantMap($asNative = true)
     {
-        $length = $this->reader->readUInt32BE();
+        $length = $this->readUInt();
 
         $map = array();
         for ($i = 0; $i < $length; ++$i) {
@@ -91,16 +91,16 @@ class Reader
 
     public function readQChar()
     {
-        return $this->conv($this->reader->read(2));
+        return $this->conv($this->read(2));
     }
 
     public function readQStringList()
     {
-        $length = $this->reader->readUInt32BE();
+        $length = $this->readUInt();
 
         $list = array();
         for ($i = 0; $i < $length; ++$i) {
-            $list []= $this->readQString(true);
+            $list []= $this->readQString();
         }
 
         return $list;
@@ -108,48 +108,60 @@ class Reader
 
     public function readQByteArray()
     {
-        $length = $this->reader->readUInt32BE();
+        $length = $this->readUInt();
 
         if ($length === 0xFFFFFFFF) {
             return null;
         }
 
-        return $this->reader->read($length);
+        return $this->read($length);
     }
 
     public function readInt()
     {
-        return $this->reader->readInt32BE();
+        $ret = unpack('l', $this->readBE(4));
+
+        return $ret[1];
     }
 
     public function readUInt()
     {
-        return $this->reader->readUInt32BE();
+        $ret = unpack('N', $this->read(4));
+
+        return $ret[1];
     }
 
     public function readShort()
     {
-        return $this->reader->readInt16BE();
+        $ret = unpack('s', $this->readBE(2));
+
+        return $ret[1];
     }
 
     public function readUShort()
     {
-        return $this->reader->readUInt16BE();
+        $ret = unpack('n', $this->read(2));
+
+        return $ret[1];
     }
 
     public function readChar()
     {
-        return $this->reader->readInt8();
+        $ret = unpack('c', $this->read(1));
+
+        return $ret[1];
     }
 
     public function readUChar()
     {
-        return $this->reader->readUInt8();
+        $ret = unpack('C', $this->read(1));
+
+        return $ret[1];
     }
 
     public function readBool()
     {
-        return $this->reader->readUInt8() ? true : false;
+        return $this->read(1) !== "\x00" ? true : false;
     }
 
     public function readQUserType($asNative = true)
@@ -206,7 +218,7 @@ class Reader
     {
         $day = $this->readUInt();
         $msec = $this->readUInt();
-        $isUtc = $this->readBool();
+        /*$isUtc = */ $this->readBool();
 
         if ($day === 0 && $msec === 0xFFFFFFFF) {
             return null;
@@ -225,5 +237,33 @@ class Reader
     {
         // transcode UTF-16 (big endian) to UTF-8
         return mb_convert_encoding($str, 'UTF-8', 'UTF-16BE');
+    }
+
+    private function read($bytes)
+    {
+        if ($bytes === 0) {
+            return '';
+        }
+
+        if (!isset($this->buffer[$bytes - 1])) {
+            throw new \UnderflowException('Not enough data in buffer');
+        }
+
+        $data = substr($this->buffer, 0, $bytes);
+        $this->buffer = (string)substr($this->buffer, $bytes);
+
+        return $data;
+    }
+
+    private function readBE($bytes)
+    {
+        $data = $this->read($bytes);
+
+        // check if machine byte order is already BE, otherwise reverse LE to BE
+        if (pack('S', 1) !== "\x00\x01") {
+            $data = strrev($data);
+        }
+
+        return $data;
     }
 }
