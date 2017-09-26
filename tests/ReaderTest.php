@@ -15,13 +15,13 @@ class ReaderTest extends TestCase
             }
         );
 
-        $reader = Reader::fromString($in, null, $map);
+        $reader = new Reader($in, null, $map);
 
         $value = $reader->readQVariant();
 
         $this->assertEquals(255, $value);
 
-        return Reader::fromString($in, null, $map);
+        return new Reader($in, null, $map);
     }
 
     public function testReadNullQTimeIsExactlyMidnight()
@@ -31,7 +31,7 @@ class ReaderTest extends TestCase
         $midnight = new DateTime('midnight');
 
         $in = "\x00\x00\x00\x00";
-        $reader = Reader::fromString($in);
+        $reader = new Reader($in);
 
         $value = $reader->readQTime();
 
@@ -45,7 +45,7 @@ class ReaderTest extends TestCase
         $midnight = new DateTime('midnight');
 
         $in = "\x00\x00\x00\x00";
-        $reader = Reader::fromString($in);
+        $reader = new Reader($in);
 
         $value = $reader->readQTime();
 
@@ -70,7 +70,7 @@ class ReaderTest extends TestCase
     {
         $in = "\x00\x00";
 
-        $reader = Reader::fromString($in);
+        $reader = new Reader($in);
         $reader->readInt();
     }
 
@@ -81,7 +81,7 @@ class ReaderTest extends TestCase
     {
         $in = "\x00\x00\x00\x7F" . "\x00" . "\x00\x00\x00\x05" . "demo\x00" . "\x00\x00\x00\xFF";
 
-        $reader = Reader::fromString($in);
+        $reader = new Reader($in);
         $reader->readQVariant();
     }
 }

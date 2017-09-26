@@ -15,7 +15,7 @@ class FunctionalTest extends TestCase
         $writer->writeQString($in);
 
         $data = (string)$writer;
-        $reader = Reader::fromString($data);
+        $reader = new Reader($data);
 
         $this->assertEquals($in, $reader->readQString());
     }
@@ -26,7 +26,7 @@ class FunctionalTest extends TestCase
         $writer->writeQString('');
 
         $data = (string)$writer;
-        $reader = Reader::fromString($data);
+        $reader = new Reader($data);
 
         $this->assertEquals('', $reader->readQString());
     }
@@ -37,7 +37,7 @@ class FunctionalTest extends TestCase
         $writer->writeQString(null);
 
         $data = (string)$writer;
-        $reader = Reader::fromString($data);
+        $reader = new Reader($data);
 
         $this->assertEquals(null, $reader->readQString());
     }
@@ -58,11 +58,11 @@ class FunctionalTest extends TestCase
         $writer->writeQVariant($in);
 
         $data = (string)$writer;
-        $reader = Reader::fromString($data);
+        $reader = new Reader($data);
 
         $this->assertEquals($in, $reader->readQVariant());
 
-        return Reader::fromString($data);
+        return new Reader($data);
     }
 
     /**
@@ -93,7 +93,7 @@ class FunctionalTest extends TestCase
         $writer->writeQVariant(new QVariant($in, Types::TYPE_CHAR));
 
         $data = (string)$writer;
-        $reader = Reader::fromString($data);
+        $reader = new Reader($data);
 
         $this->assertEquals($in, $reader->readQVariant());
     }
@@ -106,7 +106,7 @@ class FunctionalTest extends TestCase
         $writer->writeQVariant(new QVariant($in, Types::TYPE_QCHAR));
 
         $data = (string)$writer;
-        $reader = Reader::fromString($data);
+        $reader = new Reader($data);
 
         $this->assertEquals($in, $reader->readQVariant());
     }
@@ -129,7 +129,7 @@ class FunctionalTest extends TestCase
 
         $data = (string)$writer;
 
-        $reader = Reader::fromString($data);
+        $reader = new Reader($data);
         $this->assertEquals($expected, $reader->readQVariantList());
     }
 
@@ -148,7 +148,7 @@ class FunctionalTest extends TestCase
         $writer->writeQVariantMap($in);
 
         $data = (string)$writer;
-        $reader = Reader::fromString($data);
+        $reader = new Reader($data);
 
         $this->assertEquals($expected, $reader->readQVariantMap());
     }
@@ -160,7 +160,7 @@ class FunctionalTest extends TestCase
             'name' => 'test'
         );
 
-        $writer = new Writer(null, null, array(
+        $writer = new Writer(null, array(
             'user' => function ($data, Writer $writer) {
                 $writer->writeUShort($data['id']);
                 $writer->writeQString($data['name']);
@@ -169,7 +169,7 @@ class FunctionalTest extends TestCase
         $writer->writeQVariant(new QVariant($in, 'user'));
 
         $data = (string)$writer;
-        $reader = Reader::fromString($data, null, array(
+        $reader = new Reader($data, null, array(
             'user' => function (Reader $reader) {
                 return array(
                     'id' => $reader->readUShort(),
@@ -187,11 +187,11 @@ class FunctionalTest extends TestCase
         $writer->writeQStringList(array('hello', 'world'));
 
         $data = (string)$writer;
-        $reader = Reader::fromString($data);
+        $reader = new Reader($data);
 
         $this->assertEquals(array('hello', 'world'), $reader->readQStringList());
 
-        return Reader::fromString($data);
+        return new Reader($data);
     }
 
     public function testQCharMultiple()
@@ -201,7 +201,7 @@ class FunctionalTest extends TestCase
         $writer->writeQChar('ä');
 
         $data = (string)$writer;
-        $reader = Reader::fromString($data);
+        $reader = new Reader($data);
 
         $this->assertEquals('a', $reader->readQChar());
         $this->assertEquals('ä', $reader->readQChar());
@@ -214,7 +214,7 @@ class FunctionalTest extends TestCase
         $writer->writeUShort(60000);
 
         $data = (string)$writer;
-        $reader = Reader::fromString($data);
+        $reader = new Reader($data);
 
         $this->assertEquals(-100, $reader->readShort());
         $this->assertEquals(60000, $reader->readUShort());
@@ -227,7 +227,7 @@ class FunctionalTest extends TestCase
         $writer->writeUChar(250);
 
         $data = (string)$writer;
-        $reader = Reader::fromString($data);
+        $reader = new Reader($data);
 
         $this->assertEquals(-100, $reader->readChar());
         $this->assertEquals(250, $reader->readUChar());
@@ -243,7 +243,7 @@ class FunctionalTest extends TestCase
         $writer->writeQTime($now);
 
         $in = (string)$writer;
-        $reader = Reader::fromString($in);
+        $reader = new Reader($in);
 
         $dt = $reader->readQTime();
         $this->assertEquals($now, $dt);
@@ -259,7 +259,7 @@ class FunctionalTest extends TestCase
         $writer->writeQTime($now);
 
         $in = (string)$writer;
-        $reader = Reader::fromString($in);
+        $reader = new Reader($in);
 
         $dt = $reader->readQTime();
         $this->assertEquals($now, $dt);
@@ -278,7 +278,7 @@ class FunctionalTest extends TestCase
         $writer->writeQTime($now);
 
         $in = (string)$writer;
-        $reader = Reader::fromString($in);
+        $reader = new Reader($in);
 
         $dt = $reader->readQTime();
         $this->assertNotEquals($now->format('U.u'), $dt->format('U.u'));
@@ -295,7 +295,7 @@ class FunctionalTest extends TestCase
         $writer->writeQTime($now);
 
         $in = (string)$writer;
-        $reader = Reader::fromString($in);
+        $reader = new Reader($in);
 
         $dt = $reader->readQTime();
         $this->assertEquals($now->format('U.u'), $dt->format('U.u'));
@@ -311,7 +311,7 @@ class FunctionalTest extends TestCase
         $writer->writeQTime($now);
 
         $in = (string)$writer;
-        $reader = Reader::fromString($in);
+        $reader = new Reader($in);
 
         $dt = $reader->readQTime();
         $this->assertEquals($now, $dt->format('U.u'), '', 0.001);
@@ -327,7 +327,7 @@ class FunctionalTest extends TestCase
         $writer->writeQDateTime($now);
 
         $in = (string)$writer;
-        $reader = Reader::fromString($in);
+        $reader = new Reader($in);
 
         $dt = $reader->readQDateTime();
         $this->assertEquals($now, $dt);
@@ -343,7 +343,7 @@ class FunctionalTest extends TestCase
         $writer->writeQDateTime($now);
 
         $in = (string)$writer;
-        $reader = Reader::fromString($in);
+        $reader = new Reader($in);
 
         $dt = $reader->readQDateTime();
         $this->assertEquals($now, $dt);
@@ -362,7 +362,7 @@ class FunctionalTest extends TestCase
         $writer->writeQDateTime($now);
 
         $in = (string)$writer;
-        $reader = Reader::fromString($in);
+        $reader = new Reader($in);
 
         $dt = $reader->readQDateTime();
         $this->assertEquals($now, $dt);
@@ -378,7 +378,7 @@ class FunctionalTest extends TestCase
         $writer->writeBool(true);
 
         $in = (string)$writer;
-        $reader = Reader::fromString($in);
+        $reader = new Reader($in);
 
         $dt = $reader->readQDateTime();
         $this->assertEquals('2015-04-23 14:02:03', $dt->format('Y-m-d H:i:s'));
@@ -401,7 +401,7 @@ class FunctionalTest extends TestCase
         $writer->writeBool(true);
 
         $in = (string)$writer;
-        $reader = Reader::fromString($in);
+        $reader = new Reader($in);
 
         $dt = $reader->readQDateTime();
         $this->assertNull($dt);
@@ -418,7 +418,7 @@ class FunctionalTest extends TestCase
         $writer->writeQDateTime($now);
 
         $in = (string)$writer;
-        $reader = Reader::fromString($in);
+        $reader = new Reader($in);
 
         $dt = $reader->readQDateTime();
         $this->assertEquals($now->format('U.u'), $dt->format('U.u'));
@@ -434,7 +434,7 @@ class FunctionalTest extends TestCase
         $writer->writeQDateTime($now);
 
         $in = (string)$writer;
-        $reader = Reader::fromString($in);
+        $reader = new Reader($in);
 
         $dt = $reader->readQDateTime();
         $this->assertEquals($now, $dt->format('U.u'), '', 0.001);

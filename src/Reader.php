@@ -2,9 +2,6 @@
 
 namespace Clue\QDataStream;
 
-use Iodophor\Io\Reader as IoReader;
-use Iodophor\Io\StringReader;
-
 class Reader
 {
     private $types;
@@ -12,18 +9,13 @@ class Reader
     private $hasNull = true;
     private $buffer = '';
 
-    public static function fromString($str, Types $types = null, $userTypeMap = array())
-    {
-        return new self(new StringReader($str), $types, $userTypeMap);
-    }
-
-    public function __construct(IoReader $reader, Types $types = null, $userTypeMap = array())
+    public function __construct($buffer, Types $types = null, $userTypeMap = array())
     {
         if ($types === null) {
             $types = new Types();
         }
 
-        $this->buffer = $reader->read($reader->getSize());
+        $this->buffer = $buffer;
         $this->types = $types;
         $this->userTypeMap = $userTypeMap;
     }

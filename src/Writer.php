@@ -2,8 +2,6 @@
 
 namespace Clue\QDataStream;
 
-use Iodophor\Io\StringWriter as IoWriter;
-
 // http://doc.qt.io/qt-4.8/qdatastream.html#details
 class Writer
 {
@@ -13,7 +11,7 @@ class Writer
 
     private $buffer = '';
 
-    public function __construct(IoWriter $_ = null, Types $types = null, $userTypeMap = array())
+    public function __construct(Types $types = null, $userTypeMap = array())
     {
         if ($types === null) {
             $types = new Types();
