@@ -7,71 +7,68 @@ use Iodophor\Io\StringWriter as IoWriter;
 // http://doc.qt.io/qt-4.8/qdatastream.html#details
 class Writer
 {
-    private $writer;
     private $types;
     private $userTypeMap;
     private $hasNull = true;
 
-    public function __construct(IoWriter $writer = null, Types $types = null, $userTypeMap = array())
+    private $buffer = '';
+
+    public function __construct(IoWriter $_ = null, Types $types = null, $userTypeMap = array())
     {
-        if ($writer === null) {
-            $writer = new IoWriter();
-        }
         if ($types === null) {
             $types = new Types();
         }
 
-        $this->writer = $writer;
         $this->types = $types;
         $this->userTypeMap = $userTypeMap;
     }
 
     public function __toString()
     {
-        return $this->writer->toString();
+        return $this->buffer;
     }
 
     public function writeType($type)
     {
-        $this->writer->writeUInt32BE($type);
+        $this->writeUInt($type);
         if ($this->hasNull) {
-            $this->writer->writeUInt8(0);
+            $this->buffer .= "\x00";
         }
     }
 
     public function writeInt($int)
     {
-        $this->writer->writeInt32BE($int);
+        $this->writeBE(pack('l', $int));
     }
 
     public function writeUInt($int)
     {
-        $this->writer->writeUInt32BE($int);
+        $this->buffer .= pack('N', $int);
     }
 
     public function writeShort($int)
     {
-        $this->writer->writeInt16BE($int);
+        $this->writeBE(pack('s', $int));
     }
 
     public function writeUShort($int)
     {
-        $this->writer->writeUInt16BE($int);
+        $this->buffer .= pack('n', $int);
     }
 
     public function writeChar($int)
     {
-        $this->writer->writeInt8($int);
+        $this->buffer .= pack('c', $int);
     }
 
     public function writeUChar($int)
     {
-        $this->writer->writeUInt8($int);
+        $this->buffer .= pack('C', $int);
     }
 
     public function writeQStringList(array $strings)
     {
-        $this->writer->writeUInt32BE(count($strings));
+        $this->writeUInt(count($strings));
 
         foreach ($strings as $string) {
             $this->writeQString($string);
@@ -89,23 +86,23 @@ class Writer
 
     public function writeQChar($char)
     {
-        $this->writer->write($this->conv($char), 2);
+        $this->buffer .= substr($this->conv($char), 0, 2);
     }
 
     public function writeQByteArray($bytes)
     {
         if ($bytes === null) {
-            $this->writer->writeUInt32BE(0xFFFFFFFF);
+            $this->buffer .= "\xFF\xFF\xFF\xFF";
         } else {
-            $this->writer->writeUInt32BE(strlen($bytes));
-            $this->writer->write($bytes);
+            $this->writeUInt(strlen($bytes));
+            $this->buffer .= $bytes;
         }
     }
 
     public function writeBool($value)
     {
         // http://docs.oracle.com/javase/7/docs/api/java/io/DataOutput.html#writeBoolean%28boolean%29
-        $this->writer->writeUInt8($value ? 1 : 0);
+        $this->buffer .= $value ? "\x01" : "\x00";
     }
 
     public function writeQVariant($value)
@@ -145,7 +142,7 @@ class Writer
 
     public function writeQVariantList(array $list)
     {
-        $this->writer->writeUInt32BE(count($list));
+        $this->writeUInt(count($list));
 
         foreach ($list as $value) {
             $this->writeQVariant($value);
@@ -154,7 +151,7 @@ class Writer
 
     public function writeQVariantMap(array $map)
     {
-        $this->writer->writeUInt32BE(count($map));
+        $this->writeUInt(count($map));
 
         foreach ($map as $key => $value) {
             $this->writeQString($key);
@@ -203,7 +200,7 @@ class Writer
             $msec = round(($timestamp - strtotime('midnight', (int)$timestamp)) * 1000);
         }
 
-        $this->writer->writeUInt32BE($msec);
+        $this->writeUInt($msec);
     }
 
     public function writeQDateTime($timestamp)
@@ -212,17 +209,28 @@ class Writer
             $timestamp = $timestamp->format('U.u');
         }
 
-        $msec = round(($timestamp - floor($timestamp / 86400) * 86400) * 1000);
-        $days = floor($timestamp / 86400) + 2440588;
-
-        $this->writer->writeUInt32BE($days);
-        $this->writer->writeUInt32BE($msec);
-        $this->writer->writeInt8(1);
+        // days:uint, seconds:uint, isUTC:uchar
+        $this->buffer .= pack(
+            'NNC',
+            floor($timestamp / 86400) + 2440588,
+            round(($timestamp - floor($timestamp / 86400) * 86400) * 1000),
+            1
+        );
     }
 
     private function conv($str)
     {
         // transcode UTF-8 to UTF-16 (big endian)
         return mb_convert_encoding($str, 'UTF-16BE', 'UTF-8');
+    }
+
+    private function writeBE($bytes)
+    {
+        // check if machine byte order is already BE, otherwise reverse LE to BE
+        if (pack('S', 1) !== "\x00\x01") {
+            $bytes = strrev($bytes);
+        }
+
+        $this->buffer .= $bytes;
     }
 }
