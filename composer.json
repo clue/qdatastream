@@ -14,8 +14,7 @@
         "psr-4": { "Clue\\QDataStream\\": "src/" }
     },
     "require": {
-    	"php": ">=5.3",
-        "e-butik/iodophor": "~1.0"
+        "php": ">=5.3"
     },
     "require-dev": {
         "phpunit/phpunit": "^5.0 || ^4.8"

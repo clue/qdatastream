@@ -2,36 +2,39 @@
 
 namespace Clue\QDataStream;
 
-use Iodophor\Io\Reader as IoReader;
-use Iodophor\Io\StringReader;
-
 class Reader
 {
-    private $reader;
     private $types;
     private $userTypeMap;
     private $hasNull = true;
+    private $buffer = '';
 
-    public static function fromString($str, Types $types = null, $userTypeMap = array())
-    {
-        return new self(new StringReader($str), $types, $userTypeMap);
-    }
-
-    public function __construct(IoReader $reader, Types $types = null, $userTypeMap = array())
+    /**
+     * @param string     $buffer
+     * @param Types|null $types
+     * @param array      $userTypeMap
+     */
+    public function __construct($buffer, Types $types = null, $userTypeMap = array())
     {
         if ($types === null) {
             $types = new Types();
         }
 
-        $this->reader = $reader;
+        $this->buffer = $buffer;
         $this->types = $types;
         $this->userTypeMap = $userTypeMap;
     }
 
+    /**
+     * @param bool $asNative
+     * @return mixed|QVariant
+     * @throws \UnderflowException
+     * @throws \UnexpectedValueException if an unknown QUserType is encountered
+     */
     public function readQVariant($asNative = true)
     {
         // https://github.com/sandsmark/QuasselDroid/blob/master/QuasselDroid/src/main/java/com/iskrembilen/quasseldroid/qtcomm/QVariant.java#L92
-        $type = $this->reader->readUInt32BE();
+        $type = $this->readUInt();
 
         if ($this->hasNull) {
             /*$isNull = */ $this->readBool();
@@ -39,7 +42,7 @@ class Reader
 
         $name = 'read' . $this->types->getNameByType($type);
         if (!method_exists($this, $name)) {
-            throw new \BadMethodCallException('Known variant type (' . $type . '), but has no "' . $name . '()" method');
+            throw new \BadMethodCallException('Known variant type (' . $type . '), but has no "' . $name . '()" method'); // @codeCoverageIgnore
         }
 
         $value = $this->$name($asNative);
@@ -52,9 +55,15 @@ class Reader
         return $value;
     }
 
+    /**
+     * @param bool $asNative
+     * @return mixed[]|QVariant[]
+     * @throws \UnderflowException
+     * @throws \UnexpectedValueException if an unknown QUserType is encountered
+     */
     public function readQVariantList($asNative = true)
     {
-        $length = $this->reader->readUInt32BE();
+        $length = $this->readUInt();
 
         $list = array();
         for ($i = 0; $i < $length; ++$i) {
@@ -64,9 +73,15 @@ class Reader
         return $list;
     }
 
+    /**
+     * @param bool $asNative
+     * @return mixed[]|QVariant[]
+     * @throws \UnderflowException
+     * @throws \UnexpectedValueException if an unknown QUserType is encountered
+     */
     public function readQVariantMap($asNative = true)
     {
-        $length = $this->reader->readUInt32BE();
+        $length = $this->readUInt();
 
         $map = array();
         for ($i = 0; $i < $length; ++$i) {
@@ -79,6 +94,11 @@ class Reader
         return $map;
     }
 
+    /**
+     * @return string|null text string in UTF-8 encoding
+     * @throws \UnderflowException
+     * @see self::readQByteArray() for reading binary data
+     */
     public function readQString()
     {
         $str = $this->readQByteArray();
@@ -89,69 +109,127 @@ class Reader
         return $str;
     }
 
+    /**
+     * @return string single text character in UTF-8 encoding
+     * @throws \UnderflowException
+     */
     public function readQChar()
     {
-        return $this->conv($this->reader->read(2));
+        return $this->conv($this->read(2));
     }
 
+    /**
+     * @return string[] array of text strings in UTF-8 encoding
+     * @throws \UnderflowException
+     */
     public function readQStringList()
     {
-        $length = $this->reader->readUInt32BE();
+        $length = $this->readUInt();
 
         $list = array();
         for ($i = 0; $i < $length; ++$i) {
-            $list []= $this->readQString(true);
+            $list []= $this->readQString();
         }
 
         return $list;
     }
 
+    /**
+     * @return string|null binary byte string
+     * @throws \UnderflowException
+     * @see self::readQString() for reading text strings
+     */
     public function readQByteArray()
     {
-        $length = $this->reader->readUInt32BE();
+        $length = $this->readUInt();
 
         if ($length === 0xFFFFFFFF) {
             return null;
         }
 
-        return $this->reader->read($length);
+        return $this->read($length);
     }
 
+    /**
+     * @return int INT32
+     * @throws \UnderflowException
+     */
     public function readInt()
     {
-        return $this->reader->readInt32BE();
+        $ret = unpack('l', $this->readBE(4));
+
+        return $ret[1];
     }
 
+    /**
+     * @return int UINT32
+     * @throws \UnderflowException
+     */
     public function readUInt()
     {
-        return $this->reader->readUInt32BE();
+        $ret = unpack('N', $this->read(4));
+
+        return $ret[1];
     }
 
+    /**
+     * @return int INT16
+     * @throws \UnderflowException
+     */
     public function readShort()
     {
-        return $this->reader->readInt16BE();
+        $ret = unpack('s', $this->readBE(2));
+
+        return $ret[1];
     }
 
+    /**
+     * @return int UINT16
+     * @throws \UnderflowException
+     */
     public function readUShort()
     {
-        return $this->reader->readUInt16BE();
+        $ret = unpack('n', $this->read(2));
+
+        return $ret[1];
     }
 
+    /**
+     * @return int INT8
+     * @throws \UnderflowException
+     */
     public function readChar()
     {
-        return $this->reader->readInt8();
+        $ret = unpack('c', $this->read(1));
+
+        return $ret[1];
     }
 
+    /**
+     * @return int UINT8
+     * @throws \UnderflowException
+     */
     public function readUChar()
     {
-        return $this->reader->readUInt8();
+        $ret = unpack('C', $this->read(1));
+
+        return $ret[1];
     }
 
+    /**
+     * @return bool
+     * @throws \UnderflowException
+     */
     public function readBool()
     {
-        return $this->reader->readUInt8() ? true : false;
+        return $this->read(1) !== "\x00" ? true : false;
     }
 
+    /**
+     * @param bool $asNative
+     * @return mixed|QVariant
+     * @throws \UnexpectedValueException if an unknown QUserType is encountered
+     */
     public function readQUserType($asNative = true)
     {
         // name is encoded as UTF-8 string (byte array) and ends with \0 as last byte
@@ -166,6 +244,11 @@ class Reader
         return $value;
     }
 
+    /**
+     * @param string $name
+     * @return mixed
+     * @throws \UnexpectedValueException if an unknown QUserType is encountered
+     */
     public function readQUserTypeByName($name)
     {
         if (!isset($this->userTypeMap[$name])) {
@@ -184,6 +267,7 @@ class Reader
      * in will assume it is relative to the current timezone.
      *
      * @return \DateTime
+     * @throws \UnderflowException
      */
     public function readQTime()
     {
@@ -200,13 +284,14 @@ class Reader
     /**
      * Reads a QDateTime from the stream and returns a DateTime with current timezone
      *
-     * @return \DateTime|NULL
+     * @return \DateTime|null
+     * @throws \UnderflowException
      */
     public function readQDateTime()
     {
         $day = $this->readUInt();
         $msec = $this->readUInt();
-        $isUtc = $this->readBool();
+        /*$isUtc = */ $this->readBool();
 
         if ($day === 0 && $msec === 0xFFFFFFFF) {
             return null;
@@ -225,5 +310,33 @@ class Reader
     {
         // transcode UTF-16 (big endian) to UTF-8
         return mb_convert_encoding($str, 'UTF-8', 'UTF-16BE');
+    }
+
+    private function read($bytes)
+    {
+        if ($bytes === 0) {
+            return '';
+        }
+
+        if (!isset($this->buffer[$bytes - 1])) {
+            throw new \UnderflowException('Not enough data in buffer');
+        }
+
+        $data = substr($this->buffer, 0, $bytes);
+        $this->buffer = (string)substr($this->buffer, $bytes);
+
+        return $data;
+    }
+
+    private function readBE($bytes)
+    {
+        $data = $this->read($bytes);
+
+        // check if machine byte order is already BE, otherwise reverse LE to BE
+        if (pack('S', 1) !== "\x00\x01") {
+            $data = strrev($data);
+        }
+
+        return $data;
     }
 }
