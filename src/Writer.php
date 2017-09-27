@@ -11,6 +11,10 @@ class Writer
 
     private $buffer = '';
 
+    /**
+     * @param Types|null $types
+     * @param array      $userTypeMap
+     */
     public function __construct(Types $types = null, $userTypeMap = array())
     {
         if ($types === null) {
@@ -21,6 +25,11 @@ class Writer
         $this->userTypeMap = $userTypeMap;
     }
 
+    /**
+     * Returns concatenated write buffer as a single string
+     *
+     * @return string
+     */
     public function __toString()
     {
         return $this->buffer;
@@ -34,36 +43,64 @@ class Writer
         }
     }
 
+    /**
+     * @param int $int INT32
+     * @return void
+     */
     public function writeInt($int)
     {
         $this->writeBE(pack('l', $int));
     }
 
+    /**
+     * @param int $int UINT32
+     * @return void
+     */
     public function writeUInt($int)
     {
         $this->buffer .= pack('N', $int);
     }
 
+    /**
+     * @param int $int INT16
+     * @return void
+     */
     public function writeShort($int)
     {
         $this->writeBE(pack('s', $int));
     }
 
+    /**
+     * @param int $int UINT16
+     * @return void
+     */
     public function writeUShort($int)
     {
         $this->buffer .= pack('n', $int);
     }
 
+    /**
+     * @param int $int INT8
+     * @return void
+     */
     public function writeChar($int)
     {
         $this->buffer .= pack('c', $int);
     }
 
+    /**
+     * @param int $int UINT8
+     * @return void
+     */
     public function writeUChar($int)
     {
         $this->buffer .= pack('C', $int);
     }
 
+    /**
+     * @param string[] $strings array of text strings in UTF-8 encoding
+     * @return void
+     */
     public function writeQStringList(array $strings)
     {
         $this->writeUInt(count($strings));
@@ -73,6 +110,11 @@ class Writer
         }
     }
 
+    /**
+     * @param string|null $str text string in UTF-8 encoding
+     * @return void
+     * @see self::writeQByteArray() for writing binary data
+     */
     public function writeQString($str)
     {
         if ($str !== null) {
@@ -82,11 +124,20 @@ class Writer
         $this->writeQByteArray($str);
     }
 
+    /**
+     * @param string $char single text character in UTF-8 encoding
+     * @return void
+     */
     public function writeQChar($char)
     {
         $this->buffer .= substr($this->conv($char), 0, 2);
     }
 
+    /**
+     * @param string|null $bytes binary byte string
+     * @return void
+     * @see self::writeQString() for writing test string
+     */
     public function writeQByteArray($bytes)
     {
         if ($bytes === null) {
@@ -97,12 +148,21 @@ class Writer
         }
     }
 
+    /**
+     * @param bool $value
+     * @return void
+     */
     public function writeBool($value)
     {
         // http://docs.oracle.com/javase/7/docs/api/java/io/DataOutput.html#writeBoolean%28boolean%29
         $this->buffer .= $value ? "\x01" : "\x00";
     }
 
+    /**
+     * @param QVariant|mixed $value
+     * @return void
+     * @throws \UnexpectedValueException if an unknown QUserType is encountered
+     */
     public function writeQVariant($value)
     {
         if ($value instanceof QVariant) {
@@ -120,13 +180,19 @@ class Writer
 
         $name = 'write' . $this->types->getNameByType($type);
         if (!method_exists($this, $name)) {
-            throw new \BadMethodCallException('Known variant type (' . $type . '), but has no "' . $name . '()" method');
+            throw new \BadMethodCallException('Known variant type (' . $type . '), but has no "' . $name . '()" method'); // @codeCoverageIgnore
         }
 
         $this->writeType($type);
         $this->$name($value);
     }
 
+    /**
+     * @param mixed  $value
+     * @param string $userType
+     * @return void
+     * @throws \UnexpectedValueException if an unknown QUserType is encountered
+     */
     public function writeQUserTypeByName($value, $userType)
     {
         if (!isset($this->userTypeMap[$userType])) {
@@ -138,6 +204,11 @@ class Writer
         $fn($value, $this);
     }
 
+    /**
+     * @param array<QVariant|mixed> $list
+     * @return void
+     * @throws \UnexpectedValueException if an unknown QUserType is encountered
+     */
     public function writeQVariantList(array $list)
     {
         $this->writeUInt(count($list));
@@ -147,6 +218,11 @@ class Writer
         }
     }
 
+    /**
+     * @param array $map
+     * @return void
+     * @throws \UnexpectedValueException if an unknown QUserType is encountered
+     */
     public function writeQVariantMap(array $map)
     {
         $this->writeUInt(count($map));
@@ -184,7 +260,7 @@ class Writer
      * to be relative to the local midnight timestamp. If you need more control
      * over your timezone, consider passing a `DateTime` object instead.
      *
-     * @param DateTime|float $timestamp
+     * @param \DateTime|float $timestamp
      * @see self::writeQDateTime
      */
     public function writeQTime($timestamp)
@@ -201,6 +277,10 @@ class Writer
         $this->writeUInt($msec);
     }
 
+    /**
+     * @param \DateTime|float $timestamp
+     * @return void
+     */
     public function writeQDateTime($timestamp)
     {
         if ($timestamp instanceof \DateTime) {

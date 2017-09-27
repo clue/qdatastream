@@ -22,6 +22,13 @@ class Types
     const TYPE_USHORT = 133;
     const TYPE_UCHAR = 134;
 
+    /**
+     * Tries to guess the type constant based on the data type of the given value
+     *
+     * @param mixed $value
+     * @return int see TYPE_* constants
+     * @throws \InvalidArgumentException if type can not be guessed
+     */
     public function getTypeByValue($value)
     {
         if (is_int($value)) {
@@ -76,6 +83,14 @@ class Types
         return $map[$type];
     }
 
+    /**
+     * Checks whether the given argument is a list (vector array)
+     *
+     * An empty array is considered both a list and a map.
+     *
+     * @param mixed $array
+     * @return bool
+     */
     public function isList($array)
     {
         if (!is_array($array)) {
@@ -91,6 +106,14 @@ class Types
         return true;
     }
 
+    /**
+     * Checks whether the given argument is a map (hash map / assoc array)
+     *
+     * An empty array is considered both a list and a map.
+     *
+     * @param array $array
+     * @return boolean
+     */
     public function isMap($array)
     {
         return ($array === array() || (is_array($array) && !$this->isList($array)));

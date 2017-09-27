@@ -9,6 +9,11 @@ class Reader
     private $hasNull = true;
     private $buffer = '';
 
+    /**
+     * @param string     $buffer
+     * @param Types|null $types
+     * @param array      $userTypeMap
+     */
     public function __construct($buffer, Types $types = null, $userTypeMap = array())
     {
         if ($types === null) {
@@ -20,6 +25,12 @@ class Reader
         $this->userTypeMap = $userTypeMap;
     }
 
+    /**
+     * @param bool $asNative
+     * @return mixed|QVariant
+     * @throws \UnderflowException
+     * @throws \UnexpectedValueException if an unknown QUserType is encountered
+     */
     public function readQVariant($asNative = true)
     {
         // https://github.com/sandsmark/QuasselDroid/blob/master/QuasselDroid/src/main/java/com/iskrembilen/quasseldroid/qtcomm/QVariant.java#L92
@@ -31,7 +42,7 @@ class Reader
 
         $name = 'read' . $this->types->getNameByType($type);
         if (!method_exists($this, $name)) {
-            throw new \BadMethodCallException('Known variant type (' . $type . '), but has no "' . $name . '()" method');
+            throw new \BadMethodCallException('Known variant type (' . $type . '), but has no "' . $name . '()" method'); // @codeCoverageIgnore
         }
 
         $value = $this->$name($asNative);
@@ -44,6 +55,12 @@ class Reader
         return $value;
     }
 
+    /**
+     * @param bool $asNative
+     * @return mixed[]|QVariant[]
+     * @throws \UnderflowException
+     * @throws \UnexpectedValueException if an unknown QUserType is encountered
+     */
     public function readQVariantList($asNative = true)
     {
         $length = $this->readUInt();
@@ -56,6 +73,12 @@ class Reader
         return $list;
     }
 
+    /**
+     * @param bool $asNative
+     * @return mixed[]|QVariant[]
+     * @throws \UnderflowException
+     * @throws \UnexpectedValueException if an unknown QUserType is encountered
+     */
     public function readQVariantMap($asNative = true)
     {
         $length = $this->readUInt();
@@ -71,6 +94,11 @@ class Reader
         return $map;
     }
 
+    /**
+     * @return string|null text string in UTF-8 encoding
+     * @throws \UnderflowException
+     * @see self::readQByteArray() for reading binary data
+     */
     public function readQString()
     {
         $str = $this->readQByteArray();
@@ -81,11 +109,19 @@ class Reader
         return $str;
     }
 
+    /**
+     * @return string single text character in UTF-8 encoding
+     * @throws \UnderflowException
+     */
     public function readQChar()
     {
         return $this->conv($this->read(2));
     }
 
+    /**
+     * @return string[] array of text strings in UTF-8 encoding
+     * @throws \UnderflowException
+     */
     public function readQStringList()
     {
         $length = $this->readUInt();
@@ -98,6 +134,11 @@ class Reader
         return $list;
     }
 
+    /**
+     * @return string|null binary byte string
+     * @throws \UnderflowException
+     * @see self::readQString() for reading text strings
+     */
     public function readQByteArray()
     {
         $length = $this->readUInt();
@@ -109,6 +150,10 @@ class Reader
         return $this->read($length);
     }
 
+    /**
+     * @return int INT32
+     * @throws \UnderflowException
+     */
     public function readInt()
     {
         $ret = unpack('l', $this->readBE(4));
@@ -116,6 +161,10 @@ class Reader
         return $ret[1];
     }
 
+    /**
+     * @return int UINT32
+     * @throws \UnderflowException
+     */
     public function readUInt()
     {
         $ret = unpack('N', $this->read(4));
@@ -123,6 +172,10 @@ class Reader
         return $ret[1];
     }
 
+    /**
+     * @return int INT16
+     * @throws \UnderflowException
+     */
     public function readShort()
     {
         $ret = unpack('s', $this->readBE(2));
@@ -130,6 +183,10 @@ class Reader
         return $ret[1];
     }
 
+    /**
+     * @return int UINT16
+     * @throws \UnderflowException
+     */
     public function readUShort()
     {
         $ret = unpack('n', $this->read(2));
@@ -137,6 +194,10 @@ class Reader
         return $ret[1];
     }
 
+    /**
+     * @return int INT8
+     * @throws \UnderflowException
+     */
     public function readChar()
     {
         $ret = unpack('c', $this->read(1));
@@ -144,6 +205,10 @@ class Reader
         return $ret[1];
     }
 
+    /**
+     * @return int UINT8
+     * @throws \UnderflowException
+     */
     public function readUChar()
     {
         $ret = unpack('C', $this->read(1));
@@ -151,11 +216,20 @@ class Reader
         return $ret[1];
     }
 
+    /**
+     * @return bool
+     * @throws \UnderflowException
+     */
     public function readBool()
     {
         return $this->read(1) !== "\x00" ? true : false;
     }
 
+    /**
+     * @param bool $asNative
+     * @return mixed|QVariant
+     * @throws \UnexpectedValueException if an unknown QUserType is encountered
+     */
     public function readQUserType($asNative = true)
     {
         // name is encoded as UTF-8 string (byte array) and ends with \0 as last byte
@@ -170,6 +244,11 @@ class Reader
         return $value;
     }
 
+    /**
+     * @param string $name
+     * @return mixed
+     * @throws \UnexpectedValueException if an unknown QUserType is encountered
+     */
     public function readQUserTypeByName($name)
     {
         if (!isset($this->userTypeMap[$name])) {
@@ -188,6 +267,7 @@ class Reader
      * in will assume it is relative to the current timezone.
      *
      * @return \DateTime
+     * @throws \UnderflowException
      */
     public function readQTime()
     {
@@ -204,7 +284,8 @@ class Reader
     /**
      * Reads a QDateTime from the stream and returns a DateTime with current timezone
      *
-     * @return \DateTime|NULL
+     * @return \DateTime|null
+     * @throws \UnderflowException
      */
     public function readQDateTime()
     {
