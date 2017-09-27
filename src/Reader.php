@@ -4,24 +4,16 @@ namespace Clue\QDataStream;
 
 class Reader
 {
-    private $types;
+    private $buffer = '';
     private $userTypeMap;
     private $hasNull = true;
-    private $buffer = '';
-
     /**
-     * @param string     $buffer
-     * @param Types|null $types
-     * @param array      $userTypeMap
+     * @param string $buffer
+     * @param array  $userTypeMap
      */
-    public function __construct($buffer, Types $types = null, $userTypeMap = array())
+    public function __construct($buffer, $userTypeMap = array())
     {
-        if ($types === null) {
-            $types = new Types();
-        }
-
         $this->buffer = $buffer;
-        $this->types = $types;
         $this->userTypeMap = $userTypeMap;
     }
 
@@ -40,7 +32,7 @@ class Reader
             /*$isNull = */ $this->readBool();
         }
 
-        $name = 'read' . $this->types->getNameByType($type);
+        $name = 'read' . Types::getNameByType($type);
         if (!method_exists($this, $name)) {
             throw new \BadMethodCallException('Known variant type (' . $type . '), but has no "' . $name . '()" method'); // @codeCoverageIgnore
         }

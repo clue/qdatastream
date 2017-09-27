@@ -160,7 +160,7 @@ class FunctionalTest extends TestCase
             'name' => 'test'
         );
 
-        $writer = new Writer(null, array(
+        $writer = new Writer(array(
             'user' => function ($data, Writer $writer) {
                 $writer->writeUShort($data['id']);
                 $writer->writeQString($data['name']);
@@ -169,7 +169,7 @@ class FunctionalTest extends TestCase
         $writer->writeQVariant(new QVariant($in, 'user'));
 
         $data = (string)$writer;
-        $reader = new Reader($data, null, array(
+        $reader = new Reader($data, array(
             'user' => function (Reader $reader) {
                 return array(
                     'id' => $reader->readUShort(),

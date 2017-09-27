@@ -2,7 +2,7 @@
 
 namespace Clue\QDataStream;
 
-class Types
+final class Types
 {
     // https://github.com/sandsmark/QuasselDroid/blob/master/QuasselDroid/src/main/java/com/iskrembilen/quasseldroid/qtcomm/QMetaType.java
     const TYPE_BOOL = 1;
@@ -29,7 +29,7 @@ class Types
      * @return int see TYPE_* constants
      * @throws \InvalidArgumentException if type can not be guessed
      */
-    public function getTypeByValue($value)
+    public static function getTypeByValue($value)
     {
         if (is_int($value)) {
             return self::TYPE_INT;
@@ -37,9 +37,9 @@ class Types
             return self::TYPE_QSTRING;
         } elseif (is_bool($value)) {
             return self::TYPE_BOOL;
-        } elseif ($this->isList($value)) {
+        } elseif (self::isList($value)) {
             return self::TYPE_QVARIANT_LIST;
-        } elseif ($this->isMap($value)) {
+        } elseif (self::isMap($value)) {
             return self::TYPE_QVARIANT_MAP;
         } elseif ($value instanceof \DateTime) {
             return self::TYPE_QDATETIME;
@@ -55,7 +55,7 @@ class Types
      * @return string
      * @throws \InvalidArgumentException
      */
-    public function getNameByType($type)
+    public static function getNameByType($type)
     {
         static $map = array(
             self::TYPE_BOOL => 'Bool',
@@ -91,7 +91,7 @@ class Types
      * @param mixed $array
      * @return bool
      */
-    public function isList($array)
+    public static function isList($array)
     {
         if (!is_array($array)) {
             return false;
@@ -114,8 +114,8 @@ class Types
      * @param array $array
      * @return boolean
      */
-    public function isMap($array)
+    public static function isMap($array)
     {
-        return ($array === array() || (is_array($array) && !$this->isList($array)));
+        return ($array === array() || (is_array($array) && !self::isList($array)));
     }
 }
