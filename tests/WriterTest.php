@@ -8,7 +8,7 @@ class WriterTest extends TestCase
 {
     public function setUp()
     {
-        $this->writer = new Writer(null, array(
+        $this->writer = new Writer(array(
             'year' => function ($data, Writer $writer) {
                 $writer->writeUShort($data);
             },

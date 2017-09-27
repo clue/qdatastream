@@ -5,23 +5,16 @@ namespace Clue\QDataStream;
 // http://doc.qt.io/qt-4.8/qdatastream.html#details
 class Writer
 {
-    private $types;
     private $userTypeMap;
     private $hasNull = true;
 
     private $buffer = '';
 
     /**
-     * @param Types|null $types
-     * @param array      $userTypeMap
+     * @param array $userTypeMap
      */
-    public function __construct(Types $types = null, $userTypeMap = array())
+    public function __construct($userTypeMap = array())
     {
-        if ($types === null) {
-            $types = new Types();
-        }
-
-        $this->types = $types;
         $this->userTypeMap = $userTypeMap;
     }
 
@@ -169,7 +162,7 @@ class Writer
             $type = $value->getType();
             $value = $value->getValue();
         } else {
-            $type = $this->types->getTypeByValue($value);
+            $type = Types::getTypeByValue($value);
         }
 
         if (is_string($type)) {
@@ -178,7 +171,7 @@ class Writer
             return $this->writeQUserTypeByName($value, $type);
         }
 
-        $name = 'write' . $this->types->getNameByType($type);
+        $name = 'write' . Types::getNameByType($type);
         if (!method_exists($this, $name)) {
             throw new \BadMethodCallException('Known variant type (' . $type . '), but has no "' . $name . '()" method'); // @codeCoverageIgnore
         }

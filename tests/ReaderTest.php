@@ -15,13 +15,13 @@ class ReaderTest extends TestCase
             }
         );
 
-        $reader = new Reader($in, null, $map);
+        $reader = new Reader($in, $map);
 
         $value = $reader->readQVariant();
 
         $this->assertEquals(255, $value);
 
-        return new Reader($in, null, $map);
+        return new Reader($in, $map);
     }
 
     public function testReadNullQTimeIsExactlyMidnight()
