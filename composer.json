@@ -20,6 +20,6 @@
         "phpunit/phpunit": "^5.0 || ^4.8"
     },
     "suggest": {
-        "ext-mbstring": "Required for serializing/parsing QString and QChar"
+        "ext-mbstring": "Used for converting character encodings for QString and QChar"
     }
 }

@@ -85,10 +85,11 @@ extensions and supports running on legacy PHP 5.3 through current PHP 7+ and
 HHVM.
 It's *highly recommended to use PHP 7+* for this project.
 
-The `QString` and `QChar` types require the `ext-mbstring` for converting
+The `QString` and `QChar` types use the `ext-mbstring` for converting
 between different character encodings.
-If this extension is missing, the respective methods will throw a
-`BadMethodCallException`.
+If this extension is missing, then special characters outside of ASCII range
+will be replaced with a `?` placeholder.
+This means that the string `hällo!` will be converted to `h?llo!` instead.
 
 ## Tests
 
