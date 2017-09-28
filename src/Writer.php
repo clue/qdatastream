@@ -301,20 +301,10 @@ class Writer
             return mb_convert_encoding($str, 'UTF-16BE', 'UTF-8');
         }
 
-        // otherwise match all unicode chars
-        $matches = array();
-        preg_match_all('/./us', $str, $matches);
-
-        // use lossy conversion which only keeps ASCII characters and uses "?" placeholder.
-        // re-assemble by prefixing null byte for each character and use its
-        // char code if it's ASCII (single byte) or use "?" placeholder otherwise.
-        // "hällo!" => "h?llo!"
-        $str = '';
-        foreach ($matches[0] as $char) {
-            $str .= "\x00" . (isset($char[1]) ? '?' : $char);
-        }
-
-        return $str;
+        // use lossy conversion which only keeps ASCII/ISO8859-1 single byte
+        // characters prefixed with null byte and use "?" placeholder otherwise.
+        // "hällo € 10!" => "hällo ? 10!"
+        return "\x00" . implode("\x00", str_split(utf8_decode($str)));
     }
 
     private function writeBE($bytes)

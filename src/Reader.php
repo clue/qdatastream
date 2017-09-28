@@ -312,13 +312,12 @@ class Reader
             return mb_convert_encoding($str, 'UTF-8', 'UTF-16BE');
         }
 
-        // use lossy conversion which only keeps ASCII characters and uses "?" placeholder.
-        // re-assemble by removing null byte for each character and use its
-        // char code if it's ASCII (single byte) or use "?" placeholder otherwise.
-        // "hällo!" => "h?llo!"
+        // use lossy conversion which only keeps ASCII/ISO5589-1 single byte
+        // characters prefixed with null byte and use "?" placeholder otherwise.
+        // "hällo € 10!" => "hällo ? 10!"
         $out = '';
         foreach (str_split($str, 2) as $char) {
-            $out .= ($char[0] === "\x00" && $char[1] < "\x80") ? $char[1] : '?';
+            $out .= ($char[0] === "\x00") ? utf8_encode($char[1]) : '?';
         }
 
         return $out;

@@ -87,9 +87,11 @@ It's *highly recommended to use PHP 7+* for this project.
 
 The `QString` and `QChar` types use the `ext-mbstring` for converting
 between different character encodings.
-If this extension is missing, then special characters outside of ASCII range
-will be replaced with a `?` placeholder.
-This means that the string `hällo!` will be converted to `h?llo!` instead.
+If this extension is missing, then special characters outside of ASCII/ISO5589-1
+range will be replaced with a `?` placeholder.
+This means that the string `hällo € 10!` will be converted to `hällo ? 10!`
+instead.
+Installing `ext-mbstring` is highly recommended.
 
 ## Tests
 

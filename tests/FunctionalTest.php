@@ -20,12 +20,25 @@ class FunctionalTest extends TestCase
         $this->assertEquals($in, $reader->readQString());
     }
 
+    public function testQStringUnicodeSimple()
+    {
+        $in = 'hellö';
+
+        $writer = new Writer();
+        $writer->writeQString($in);
+
+        $data = (string)$writer;
+        $reader = new Reader($data);
+
+        $this->assertEquals($in, $reader->readQString());
+    }
+
     /**
      * @requires extension mbstring
      */
-    public function testQStringUnicode()
+    public function testQStringUnicodeOutsideLatin1RequiresExtMbstring()
     {
-        $in = 'hellö';
+        $in = 'hellö € 10';
 
         $writer = new Writer();
         $writer->writeQString($in);
@@ -114,9 +127,6 @@ class FunctionalTest extends TestCase
         $this->assertEquals($in, $reader->readQVariant());
     }
 
-    /**
-     * @requires extension mbstring
-     */
     public function testQVariantExplicitQCharType()
     {
         $in = 'ö';
@@ -211,9 +221,6 @@ class FunctionalTest extends TestCase
         $this->assertEquals(array('hello', 'world'), $reader->readQStringList());
     }
 
-    /**
-     * @requires extension mbstring
-     */
     public function testQCharMultipleUnicode()
     {
         $writer = new Writer();
