@@ -28,14 +28,6 @@ class Writer
         return $this->buffer;
     }
 
-    public function writeType($type)
-    {
-        $this->writeUInt($type);
-        if ($this->hasNull) {
-            $this->buffer .= "\x00";
-        }
-    }
-
     /**
      * @param int $int INT32
      * @return void
@@ -166,7 +158,10 @@ class Writer
         }
 
         if (is_string($type)) {
-            $this->writeType(Types::TYPE_QUSER_TYPE);
+            $this->writeUInt(Types::TYPE_QUSER_TYPE);
+            if ($this->hasNull) {
+                $this->buffer .= "\x00";
+            }
 
             return $this->writeQUserTypeByName($value, $type);
         }
@@ -176,7 +171,10 @@ class Writer
             throw new \BadMethodCallException('Known variant type (' . $type . '), but has no "' . $name . '()" method'); // @codeCoverageIgnore
         }
 
-        $this->writeType($type);
+        $this->writeUInt($type);
+        if ($this->hasNull) {
+            $this->buffer .= "\x00";
+        }
         $this->$name($value);
     }
 
