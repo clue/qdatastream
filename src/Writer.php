@@ -102,7 +102,7 @@ class Writer
      */
     public function writeQString($str)
     {
-        if ($str !== null) {
+        if ($str !== null && $str !== '') {
             $str = $this->conv($str);
         }
 
@@ -287,10 +287,24 @@ class Writer
         );
     }
 
+    /**
+     * transcode UTF-8 to UTF-16BE
+     *
+     * @param string $str
+     * @return string
+     * @codeCoverageIgnore
+     */
     private function conv($str)
     {
-        // transcode UTF-8 to UTF-16 (big endian)
-        return mb_convert_encoding($str, 'UTF-16BE', 'UTF-8');
+        // prefer mb_convert_encoding if available
+        if (function_exists('mb_convert_encoding')) {
+            return mb_convert_encoding($str, 'UTF-16BE', 'UTF-8');
+        }
+
+        // use lossy conversion which only keeps ASCII/ISO8859-1 single byte
+        // characters prefixed with null byte and use "?" placeholder otherwise.
+        // "hällo € 10!" => "hällo ? 10!"
+        return "\x00" . implode("\x00", str_split(utf8_decode($str)));
     }
 
     private function writeBE($bytes)

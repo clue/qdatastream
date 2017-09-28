@@ -94,7 +94,7 @@ class Reader
     public function readQString()
     {
         $str = $this->readQByteArray();
-        if ($str !== null) {
+        if ($str !== null && $str !== '') {
             $str = $this->conv($str);
         }
 
@@ -298,10 +298,29 @@ class Reader
         return $dt;
     }
 
+    /**
+     * transcode UTF-16BE to UTF-8
+     *
+     * @param string $str
+     * @return string
+     * @codeCoverageIgnore
+     */
     private function conv($str)
     {
-        // transcode UTF-16 (big endian) to UTF-8
-        return mb_convert_encoding($str, 'UTF-8', 'UTF-16BE');
+        // prefer mb_convert_encoding if available
+        if (function_exists('mb_convert_encoding')) {
+            return mb_convert_encoding($str, 'UTF-8', 'UTF-16BE');
+        }
+
+        // use lossy conversion which only keeps ASCII/ISO5589-1 single byte
+        // characters prefixed with null byte and use "?" placeholder otherwise.
+        // "hällo € 10!" => "hällo ? 10!"
+        $out = '';
+        foreach (str_split($str, 2) as $char) {
+            $out .= ($char[0] === "\x00") ? utf8_encode($char[1]) : '?';
+        }
+
+        return $out;
     }
 
     private function read($bytes)

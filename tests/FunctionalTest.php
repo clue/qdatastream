@@ -9,7 +9,36 @@ class FunctionalTest extends TestCase
 {
     public function testQString()
     {
+        $in = 'hello';
+
+        $writer = new Writer();
+        $writer->writeQString($in);
+
+        $data = (string)$writer;
+        $reader = new Reader($data);
+
+        $this->assertEquals($in, $reader->readQString());
+    }
+
+    public function testQStringUnicodeSimple()
+    {
         $in = 'hellö';
+
+        $writer = new Writer();
+        $writer->writeQString($in);
+
+        $data = (string)$writer;
+        $reader = new Reader($data);
+
+        $this->assertEquals($in, $reader->readQString());
+    }
+
+    /**
+     * @requires extension mbstring
+     */
+    public function testQStringUnicodeOutsideLatin1RequiresExtMbstring()
+    {
+        $in = 'hellö € 10';
 
         $writer = new Writer();
         $writer->writeQString($in);
@@ -190,11 +219,9 @@ class FunctionalTest extends TestCase
         $reader = new Reader($data);
 
         $this->assertEquals(array('hello', 'world'), $reader->readQStringList());
-
-        return new Reader($data);
     }
 
-    public function testQCharMultiple()
+    public function testQCharMultipleUnicode()
     {
         $writer = new Writer();
         $writer->writeQChar('a');
