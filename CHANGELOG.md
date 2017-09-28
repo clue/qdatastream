@@ -1,5 +1,41 @@
 # Changelog
 
+## 0.7.0 (2017-09-28)
+
+*   Feature / BC break: Simplify `Reader` and `Writer` and remove dependency
+    on Iodophor and simplify `Types` to be static only
+    (#22 and #23 by @clue)
+
+    The BC break mostly affects how the `Reader` and `Writer` now directly
+    work on a buffer string instead of accepting a `Types` parameter and
+    exposing Iodophor as a dependency.
+
+    ```php
+    // old
+    $reader = Reader::fromString($buffer, $types, $map);
+    $writer = new Writer($writer, $types, $map);
+
+    // new
+    $reader = new Reader($buffer, $map);
+    $writer = new Writer($map);
+    ```
+
+*   Feature: Suggest installing `ext-mbstring` and use lossy conversion for `QString` and `QChar` otherwise
+    (#25 by @clue)
+
+    The `QString` and `QChar` types use the `ext-mbstring` for converting
+    between different character encodings. If this extension is missing, then
+    special characters outside of ASCII/ISO5589-1 range will be replaced with a
+    `?` placeholder. This means that the string `hällo € 10!` will be
+    converted to `hällo ? 10!` instead. Installing `ext-mbstring` is highly
+    recommended.
+
+*   BC break: Remove undocumented `writeType()`
+    (#24 by @clue)
+
+*   Improve test suite by adding PHPUnit to require-dev and fix Travis build config
+    (#21 by @clue)
+
 ## 0.6.0 (2016-09-24)
 
 *   Feature / BC break: QTime and QDateTime are relative to default time zone and obey given time zone

@@ -1,7 +1,7 @@
 {
     "name": "clue/qdatastream",
-    "description": "Access Qt's QDataStream in PHP",
-    "keywords": ["QDataStream", "Qt", "binary", "serialize"],
+    "description": "Lightweight PHP library that allows exchanging binary data with Qt programs (QDataStream)",
+    "keywords": ["QDataStream", "Qt", "binary", "serialize", "parse"],
     "homepage": "https://github.com/clue/php-qdatastream",
     "license": "MIT",
     "authors": [

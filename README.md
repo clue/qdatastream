@@ -1,6 +1,17 @@
 # clue/qdatastream [![Build Status](https://travis-ci.org/clue/php-qdatastream.svg?branch=master)](https://travis-ci.org/clue/php-qdatastream)
 
-> Note: This project is in beta stage! Feel free to report any issues you encounter.
+Lightweight PHP library that allows exchanging binary data with Qt programs (QDataStream)
+
+**Table of contents**
+
+* [Usage](#usage)
+  * [Writer](#writer)
+  * [Reader](#reader)
+  * [QVariant](#qvariant)
+  * [Types](#types)
+* [Install](#install)
+* [Tests](#tests)
+* [License](#license)
 
 ## Usage
 
@@ -75,7 +86,7 @@ The recommended way to install this library is [through Composer](http://getcomp
 This will install the latest supported version:
 
 ```bash
-$ composer require clue/qdatastream:^0.6
+$ composer require clue/qdatastream:^0.7
 ```
 
 See also the [CHANGELOG](CHANGELOG.md) for details about version upgrades.
