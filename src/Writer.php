@@ -85,6 +85,7 @@ class Writer
     /**
      * @param string[] $strings array of text strings in UTF-8 encoding
      * @return void
+     * @throws \BadMethodCallException if ext-mbstring is missing
      */
     public function writeQStringList(array $strings)
     {
@@ -99,10 +100,11 @@ class Writer
      * @param string|null $str text string in UTF-8 encoding
      * @return void
      * @see self::writeQByteArray() for writing binary data
+     * @throws \BadMethodCallException if ext-mbstring is missing
      */
     public function writeQString($str)
     {
-        if ($str !== null) {
+        if ($str !== null && $str !== '') {
             $str = $this->conv($str);
         }
 
@@ -112,6 +114,7 @@ class Writer
     /**
      * @param string $char single text character in UTF-8 encoding
      * @return void
+     * @throws \BadMethodCallException if ext-mbstring is missing
      */
     public function writeQChar($char)
     {
@@ -147,6 +150,7 @@ class Writer
      * @param QVariant|mixed $value
      * @return void
      * @throws \UnexpectedValueException if an unknown QUserType is encountered
+     * @throws \BadMethodCallException if a QString/QChar is encountered and ext-mbstring is missing
      */
     public function writeQVariant($value)
     {
@@ -183,6 +187,7 @@ class Writer
      * @param string $userType
      * @return void
      * @throws \UnexpectedValueException if an unknown QUserType is encountered
+     * @throws \BadMethodCallException if a QString/QChar is encountered and ext-mbstring is missing
      */
     public function writeQUserTypeByName($value, $userType)
     {
@@ -199,6 +204,7 @@ class Writer
      * @param array<QVariant|mixed> $list
      * @return void
      * @throws \UnexpectedValueException if an unknown QUserType is encountered
+     * @throws \BadMethodCallException if a QString/QChar is encountered and ext-mbstring is missing
      */
     public function writeQVariantList(array $list)
     {
@@ -213,6 +219,7 @@ class Writer
      * @param array $map
      * @return void
      * @throws \UnexpectedValueException if an unknown QUserType is encountered
+     * @throws \BadMethodCallException if ext-mbstring is missing
      */
     public function writeQVariantMap(array $map)
     {
@@ -289,6 +296,10 @@ class Writer
 
     private function conv($str)
     {
+        if (!function_exists('mb_convert_encoding')) {
+            throw new \BadMethodCallException('Missing function (ext-mbstring not loaded?)'); // @codeCoverageIgnore
+        }
+
         // transcode UTF-8 to UTF-16 (big endian)
         return mb_convert_encoding($str, 'UTF-16BE', 'UTF-8');
     }

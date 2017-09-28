@@ -7,6 +7,9 @@ use Clue\QDataStream\QVariant;
 
 class FunctionalTest extends TestCase
 {
+    /**
+     * @requires extension mbstring
+     */
     public function testQString()
     {
         $in = 'hellö';
@@ -42,6 +45,9 @@ class FunctionalTest extends TestCase
         $this->assertEquals(null, $reader->readQString());
     }
 
+    /**
+     * @requires extension mbstring
+     */
     public function testQVariantAutoTypes()
     {
         $in = array(
@@ -68,6 +74,7 @@ class FunctionalTest extends TestCase
     /**
      * @depends testQVariantAutoTypes
      * @param Reader $reader
+     * @requires extension mbstring
      */
     public function testQVariantAutoTypeAsQVariant(Reader $reader)
     {
@@ -98,6 +105,9 @@ class FunctionalTest extends TestCase
         $this->assertEquals($in, $reader->readQVariant());
     }
 
+    /**
+     * @requires extension mbstring
+     */
     public function testQVariantExplicitQCharType()
     {
         $in = 'ö';
@@ -133,6 +143,9 @@ class FunctionalTest extends TestCase
         $this->assertEquals($expected, $reader->readQVariantList());
     }
 
+    /**
+     * @requires extension mbstring
+     */
     public function testQVariantMapSomeExplicit()
     {
         $in = array(
@@ -153,6 +166,9 @@ class FunctionalTest extends TestCase
         $this->assertEquals($expected, $reader->readQVariantMap());
     }
 
+    /**
+     * @requires extension mbstring
+     */
     public function testQUserType()
     {
         $in = array(
@@ -181,6 +197,9 @@ class FunctionalTest extends TestCase
         $this->assertEquals($in, $reader->readQVariant());
     }
 
+    /**
+     * @requires extension mbstring
+     */
     public function testQStringList()
     {
         $writer = new Writer();
@@ -190,10 +209,11 @@ class FunctionalTest extends TestCase
         $reader = new Reader($data);
 
         $this->assertEquals(array('hello', 'world'), $reader->readQStringList());
-
-        return new Reader($data);
     }
 
+    /**
+     * @requires extension mbstring
+     */
     public function testQCharMultiple()
     {
         $writer = new Writer();

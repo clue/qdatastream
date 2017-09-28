@@ -73,6 +73,9 @@ class WriterTest extends TestCase
         $this->assertEquals("\xFF\xFF\xFF\xFF", (string)$this->writer);
     }
 
+    /**
+     * @requires extension mbstring
+     */
     public function testQStringHi()
     {
         $this->writer->writeQString('Hi');
@@ -146,6 +149,9 @@ class WriterTest extends TestCase
         $this->assertEquals("\x00\x00\x00\x0A\x00" . "\x00\x00\x00\x00", (string)$this->writer);
     }
 
+    /**
+     * @requires extension mbstring
+     */
     public function testQVariantStringHi()
     {
         $this->writer->writeQVariant('Hi');
@@ -192,6 +198,9 @@ class WriterTest extends TestCase
         $this->assertEquals("\x00\x00\x00\x7F" . "\x00" . "\x00\x00\x00\x05" . "year\x00" . "\x07\xDF", (string)$this->writer);
     }
 
+    /**
+     * @requires extension mbstring
+     */
     public function testQUserTypeComplex()
     {
         $user = array(

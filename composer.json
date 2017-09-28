@@ -18,5 +18,8 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^5.0 || ^4.8"
+    },
+    "suggest": {
+        "ext-mbstring": "Required for serializing/parsing QString and QChar"
     }
 }

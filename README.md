@@ -80,6 +80,16 @@ $ composer require clue/qdatastream:^0.6
 
 See also the [CHANGELOG](CHANGELOG.md) for details about version upgrades.
 
+This project aims to run on any platform and thus does not require any PHP
+extensions and supports running on legacy PHP 5.3 through current PHP 7+ and
+HHVM.
+It's *highly recommended to use PHP 7+* for this project.
+
+The `QString` and `QChar` types require the `ext-mbstring` for converting
+between different character encodings.
+If this extension is missing, the respective methods will throw a
+`BadMethodCallException`.
+
 ## Tests
 
 To run the test suite, you first need to clone this repo and then install all

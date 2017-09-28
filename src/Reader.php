@@ -22,6 +22,7 @@ class Reader
      * @return mixed|QVariant
      * @throws \UnderflowException
      * @throws \UnexpectedValueException if an unknown QUserType is encountered
+     * @throws \BadMethodCallException if a QString/QChar is encountered and ext-mbstring is missing
      */
     public function readQVariant($asNative = true)
     {
@@ -52,6 +53,7 @@ class Reader
      * @return mixed[]|QVariant[]
      * @throws \UnderflowException
      * @throws \UnexpectedValueException if an unknown QUserType is encountered
+     * @throws \BadMethodCallException if a QString/QChar is encountered and ext-mbstring is missing
      */
     public function readQVariantList($asNative = true)
     {
@@ -70,6 +72,7 @@ class Reader
      * @return mixed[]|QVariant[]
      * @throws \UnderflowException
      * @throws \UnexpectedValueException if an unknown QUserType is encountered
+     * @throws \BadMethodCallException if ext-mbstring is missing
      */
     public function readQVariantMap($asNative = true)
     {
@@ -89,12 +92,13 @@ class Reader
     /**
      * @return string|null text string in UTF-8 encoding
      * @throws \UnderflowException
+     * @throws \BadMethodCallException if ext-mbstring is missing
      * @see self::readQByteArray() for reading binary data
      */
     public function readQString()
     {
         $str = $this->readQByteArray();
-        if ($str !== null) {
+        if ($str !== null && $str !== '') {
             $str = $this->conv($str);
         }
 
@@ -104,6 +108,7 @@ class Reader
     /**
      * @return string single text character in UTF-8 encoding
      * @throws \UnderflowException
+     * @throws \BadMethodCallException if ext-mbstring is missing
      */
     public function readQChar()
     {
@@ -113,6 +118,7 @@ class Reader
     /**
      * @return string[] array of text strings in UTF-8 encoding
      * @throws \UnderflowException
+     * @throws \BadMethodCallException if ext-mbstring is missing
      */
     public function readQStringList()
     {
@@ -221,6 +227,7 @@ class Reader
      * @param bool $asNative
      * @return mixed|QVariant
      * @throws \UnexpectedValueException if an unknown QUserType is encountered
+     * @throws \BadMethodCallException if a QString/QChar is encountered and ext-mbstring is missing
      */
     public function readQUserType($asNative = true)
     {
@@ -240,6 +247,7 @@ class Reader
      * @param string $name
      * @return mixed
      * @throws \UnexpectedValueException if an unknown QUserType is encountered
+     * @throws \BadMethodCallException if a QString/QChar is encountered and ext-mbstring is missing
      */
     public function readQUserTypeByName($name)
     {
@@ -300,6 +308,10 @@ class Reader
 
     private function conv($str)
     {
+        if (!function_exists('mb_convert_encoding')) {
+            throw new \BadMethodCallException('Missing function (ext-mbstring not loaded?)'); // @codeCoverageIgnore
+        }
+
         // transcode UTF-16 (big endian) to UTF-8
         return mb_convert_encoding($str, 'UTF-8', 'UTF-16BE');
     }
