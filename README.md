@@ -80,13 +80,13 @@ See the [class outline](src/Types.php) for more details.
 
 ## Install
 
-The recommended way to install this library is [through Composer](http://getcomposer.org).
-[New to Composer?](http://getcomposer.org/doc/00-intro.md)
+The recommended way to install this library is [through Composer](https://getcomposer.org).
+[New to Composer?](https://getcomposer.org/doc/00-intro.md)
 
 This will install the latest supported version:
 
 ```bash
-$ composer require clue/qdatastream:^0.7
+$ composer require clue/qdatastream:^0.7.1
 ```
 
 See also the [CHANGELOG](CHANGELOG.md) for details about version upgrades.

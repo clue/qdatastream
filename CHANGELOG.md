@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.7.1 (2017-10-05)
+
+*   Add benchmarking example and significantly improve parsing performance
+    (#26 by @clue)
+
+    For example, the included benchmark should now run ~40 times faster!
+    Parsing larger values (such as long arrays) is now significantly faster and
+    scales approximaly linear with `O(n)`, while the old version scaled with
+    `O(n^2)`. This is more obvious for larger arrays with thousands of entries
+    and less so for smaller ones.
+
 ## 0.7.0 (2017-09-28)
 
 *   Feature / BC break: Simplify `Reader` and `Writer` and remove dependency
@@ -63,15 +74,15 @@
     ([#14](https://github.com/clue/php-qdatastream/pull/14))
     
     ```php
-// unchanged: automatic type guessing
-$writer->writeQVariant(10);
+    // unchanged: automatic type guessing
+    $writer->writeQVariant(10);
 
-// old: explicit types via type arguments
-$writer->writeQVariant(10, Types::TYPE_QCHAR);
+    // old: explicit types via type arguments
+    $writer->writeQVariant(10, Types::TYPE_QCHAR);
 
-// new: explicit types via QVariant
-$writer->writeQVariant(new QVariant(10, Types::TYPE_QCHAR));
-```
+    // new: explicit types via QVariant
+    $writer->writeQVariant(new QVariant(10, Types::TYPE_QCHAR));
+    ```
 
 *   Feature: Support writing nested QVariantList/QVariantMap objects with
     explicit types.
