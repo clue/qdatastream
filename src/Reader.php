@@ -95,12 +95,15 @@ class Reader
      */
     public function readQString()
     {
-        $str = $this->readQByteArray();
-        if ($str !== null && $str !== '') {
-            $str = $this->conv($str);
+        $length = $this->readUInt();
+
+        if ($length === 0) {
+            return '';
+        } elseif ($length === 0xFFFFFFFF) {
+            return null;
         }
 
-        return $str;
+        return $this->conv($this->read($length));
     }
 
     /**
@@ -137,7 +140,9 @@ class Reader
     {
         $length = $this->readUInt();
 
-        if ($length === 0xFFFFFFFF) {
+        if ($length === 0) {
+            return '';
+        } elseif ($length === 0xFFFFFFFF) {
             return null;
         }
 
@@ -161,7 +166,14 @@ class Reader
      */
     public function readUInt()
     {
-        $ret = unpack('N', $this->read(4));
+        // this method is used all over this class, so it deserves a special
+        // case for reading common case of 4 bytes without an expensive substr()
+        // function call. Otherwise identical with parsing result of `read(4)`.
+        if (!isset($this->buffer[$this->pos + 3])) {
+            throw new \UnderflowException('Not enough data in buffer');
+        }
+        $ret = unpack('N', $this->buffer[$this->pos] . $this->buffer[$this->pos + 1] . $this->buffer[$this->pos + 2] . $this->buffer[$this->pos + 3]);
+        $this->pos += 4;
 
         return $ret[1];
     }
@@ -327,10 +339,6 @@ class Reader
 
     private function read($bytes)
     {
-        if ($bytes === 0) {
-            return '';
-        }
-
         if (!isset($this->buffer[$this->pos + $bytes - 1])) {
             throw new \UnderflowException('Not enough data in buffer');
         }

@@ -75,6 +75,17 @@ class ReaderTest extends TestCase
     }
 
     /**
+     * @expectedException UnderflowException
+     */
+    public function testReadUintBeyondLimitThrows()
+    {
+        $in = "\x00\x00";
+
+        $reader = new Reader($in);
+        $reader->readUInt();
+    }
+
+    /**
      * @expectedException UnexpectedValueException
      */
     public function testQUserTypeUnknown()
