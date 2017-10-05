@@ -71,6 +71,28 @@ class FunctionalTest extends TestCase
         $this->assertEquals(null, $reader->readQString());
     }
 
+    public function testQByteArrayEmpty()
+    {
+        $writer = new Writer();
+        $writer->writeQByteArray('');
+
+        $data = (string)$writer;
+        $reader = new Reader($data);
+
+        $this->assertEquals('', $reader->readQByteArray());
+    }
+
+    public function testQByteArrayNull()
+    {
+        $writer = new Writer();
+        $writer->writeQByteArray(null);
+
+        $data = (string)$writer;
+        $reader = new Reader($data);
+
+        $this->assertEquals(null, $reader->readQByteArray());
+    }
+
     public function testQVariantAutoTypes()
     {
         $in = array(
