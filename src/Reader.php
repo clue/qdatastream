@@ -5,6 +5,8 @@ namespace Clue\QDataStream;
 class Reader
 {
     private $buffer = '';
+    private $pos = 0;
+
     private $userTypeMap;
     private $hasNull = true;
     /**
@@ -329,12 +331,12 @@ class Reader
             return '';
         }
 
-        if (!isset($this->buffer[$bytes - 1])) {
+        if (!isset($this->buffer[$this->pos + $bytes - 1])) {
             throw new \UnderflowException('Not enough data in buffer');
         }
 
-        $data = substr($this->buffer, 0, $bytes);
-        $this->buffer = (string)substr($this->buffer, $bytes);
+        $data = substr($this->buffer, $this->pos, $bytes);
+        $this->pos += $bytes;
 
         return $data;
     }
