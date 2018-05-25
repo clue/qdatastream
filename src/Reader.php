@@ -89,7 +89,7 @@ class Reader
     }
 
     /**
-     * @return string|null text string in UTF-8 encoding
+     * @return string|null text string in UTF-8 encoding (will be transcoded from UCS-2BE)
      * @throws \UnderflowException
      * @see self::readQByteArray() for reading binary data
      */
@@ -107,7 +107,7 @@ class Reader
     }
 
     /**
-     * @return string single text character in UTF-8 encoding
+     * @return string single text character in UTF-8 encoding (will be transcoded from UCS-2BE)
      * @throws \UnderflowException
      */
     public function readQChar()
@@ -116,7 +116,7 @@ class Reader
     }
 
     /**
-     * @return string[] array of text strings in UTF-8 encoding
+     * @return string[] array of text strings in UTF-8 encoding (will be transcoded from UCS-2BE)
      * @throws \UnderflowException
      */
     public function readQStringList()
@@ -313,7 +313,7 @@ class Reader
     }
 
     /**
-     * transcode UTF-16BE to UTF-8
+     * transcode UCS-2BE (UTF-16BE limited to two bytes) to UTF-8
      *
      * @param string $str
      * @return string
@@ -323,15 +323,25 @@ class Reader
     {
         // prefer mb_convert_encoding if available
         if (function_exists('mb_convert_encoding')) {
-            return mb_convert_encoding($str, 'UTF-8', 'UTF-16BE');
+            return mb_convert_encoding($str, 'UTF-8', 'UCS-2BE');
         }
 
-        // use lossy conversion which only keeps ASCII/ISO5589-1 single byte
-        // characters prefixed with null byte and use "?" placeholder otherwise.
-        // "hällo € 10!" => "hällo ? 10!"
+        // Otherwise convert each byte pair to its Unicode code point and
+        // then manually encode as UTF-8 bytes.
         $out = '';
         foreach (str_split($str, 2) as $char) {
-            $out .= ($char[0] === "\x00") ? utf8_encode($char[1]) : '?';
+            $code = (ord($char[0]) << 8) + ord($char[1]);
+            if ($code < 0x80) {
+                // U+0000 - U+007F encodes as single ASCII/UTF-8 byte
+                $out .= $char[1];
+            } elseif ($code < 0x0800) {
+                // U+0080 - U+07FF encodes as two UTF-8 bytes
+                $out .= chr($code >> 6 | 0xC0) . chr($code & 0x3F | 0x80);
+            } else {
+                // U+0800 - U+FFFF encodes as three UTF-8 bytes
+                // code points outside BMP are not supported by UCS-2 encoding
+                $out .= chr($code >> 12 | 0xE0) . chr($code >> 6 & 0x3F | 0x80) . chr($code & 0x3F | 0x80);
+            }
         }
 
         return $out;

@@ -20,23 +20,7 @@ class FunctionalTest extends TestCase
         $this->assertEquals($in, $reader->readQString());
     }
 
-    public function testQStringUnicodeSimple()
-    {
-        $in = 'hellö';
-
-        $writer = new Writer();
-        $writer->writeQString($in);
-
-        $data = (string)$writer;
-        $reader = new Reader($data);
-
-        $this->assertEquals($in, $reader->readQString());
-    }
-
-    /**
-     * @requires extension mbstring
-     */
-    public function testQStringUnicodeOutsideLatin1RequiresExtMbstring()
+    public function testQStringUnicode()
     {
         $in = 'hellö € 10';
 

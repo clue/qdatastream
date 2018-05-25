@@ -95,4 +95,36 @@ class ReaderTest extends TestCase
         $reader = new Reader($in);
         $reader->readQVariant();
     }
+
+    public function testQCharAscii()
+    {
+        $in = "\x00o";
+
+        $reader = new Reader($in);
+        $this->assertEquals('o', $reader->readQChar());
+    }
+
+    public function testQCharWideUmlaut()
+    {
+        $in = "\x00\xC4";
+
+        $reader = new Reader($in);
+        $this->assertEquals('Ä', $reader->readQChar());
+    }
+
+    public function testQCharWideCent()
+    {
+        $in = "\x00\xA2";
+
+        $reader = new Reader($in);
+        $this->assertEquals('¢', $reader->readQChar());
+    }
+
+    public function testQCharWideEuro()
+    {
+        $in = "\x20\xAC";
+
+        $reader = new Reader($in);
+        $this->assertEquals('€', $reader->readQChar());
+    }
 }
