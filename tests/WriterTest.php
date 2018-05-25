@@ -79,6 +79,36 @@ class WriterTest extends TestCase
         $this->assertEquals("\x00\x00\x00\x04" . "\x00H\x00i", (string)$this->writer);
     }
 
+    public function testQCharAscii()
+    {
+        $this->writer->writeQChar('o');
+        $this->assertEquals("\x00o", (string)$this->writer);
+    }
+
+    public function testQCharWideUmlaut()
+    {
+        $this->writer->writeQChar('Ä');
+        $this->assertEquals("\x00\xC4", (string)$this->writer);
+    }
+
+    public function testQCharWideCent()
+    {
+        $this->writer->writeQChar('¢');
+        $this->assertEquals("\x00\xA2", (string)$this->writer);
+    }
+
+    public function testQCharWideEuro()
+    {
+        $this->writer->writeQChar('€');
+        $this->assertEquals("\x20\xAC", (string)$this->writer);
+    }
+
+    public function testQCharWideSupplementaryPlaneWillBeEncodedAsQuestionMark()
+    {
+        $this->writer->writeQChar("\xF0\x90\x8D\x88"); // 𐍈
+        $this->assertEquals("\x00?", (string)$this->writer);
+    }
+
     public function testQTimeExactlyMidnightIsNullMilliseconds()
     {
         date_default_timezone_set('UTC');
