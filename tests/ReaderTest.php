@@ -1,7 +1,8 @@
 <?php
 
-use Clue\QDataStream\Reader;
 use Clue\QDataStream\QVariant;
+use Clue\QDataStream\Reader;
+use PHPUnit\Framework\TestCase;
 
 class ReaderTest extends TestCase
 {

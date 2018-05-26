@@ -1,6 +1,7 @@
 <?php
 
 use Clue\QDataStream\Types;
+use PHPUnit\Framework\TestCase;
 
 class TypesTest extends TestCase
 {
