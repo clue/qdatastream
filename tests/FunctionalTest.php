@@ -1,9 +1,10 @@
 <?php
 
-use Clue\QDataStream\Reader;
-use Clue\QDataStream\Writer;
-use Clue\QDataStream\Types;
 use Clue\QDataStream\QVariant;
+use Clue\QDataStream\Reader;
+use Clue\QDataStream\Types;
+use Clue\QDataStream\Writer;
+use PHPUnit\Framework\TestCase;
 
 class FunctionalTest extends TestCase
 {
