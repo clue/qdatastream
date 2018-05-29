@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.7.2 (2018-05-29)
+
+*   Feature: Support transcoding between UTF-8 and UCS-2BE also when `ext-mbstring` is not available.
+    (#28 by @clue)
+
+    The `QString` and `QChar` types use the `ext-mbstring` for converting
+    between different character encodings. If this extension is missing, then
+    this library will now use a slighty slower Regex work-around that should
+    otherwise work equally well. Installing `ext-mbstring` is highly recommended.
+
+*   Improve test suite by adding forward compatibility with PHPUnit 7 and
+    improve test suite for millisecond precision on PHP 7.1+.
+    (#27 and #29 by @clue)
+
 ## 0.7.1 (2017-10-05)
 
 *   Add benchmarking example and significantly improve parsing performance
@@ -7,7 +21,7 @@
 
     For example, the included benchmark should now run ~40 times faster!
     Parsing larger values (such as long arrays) is now significantly faster and
-    scales approximaly linear with `O(n)`, while the old version scaled with
+    scales approximately linearly with `O(n)`, while the old version scaled with
     `O(n^2)`. This is more obvious for larger arrays with thousands of entries
     and less so for smaller ones.
 
@@ -36,8 +50,8 @@
 
     The `QString` and `QChar` types use the `ext-mbstring` for converting
     between different character encodings. If this extension is missing, then
-    special characters outside of ASCII/ISO5589-1 range will be replaced with a
-    `?` placeholder. This means that the string `hällo € 10!` will be
+    special characters outside of ISO 8859-1 / ASCII range will be replaced with
+    a `?` placeholder. This means that the string `hällo € 10!` will be
     converted to `hällo ? 10!` instead. Installing `ext-mbstring` is highly
     recommended.
 

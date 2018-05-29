@@ -86,7 +86,7 @@ The recommended way to install this library is [through Composer](https://getcom
 This will install the latest supported version:
 
 ```bash
-$ composer require clue/qdatastream:^0.7.1
+$ composer require clue/qdatastream:^0.7.2
 ```
 
 See also the [CHANGELOG](CHANGELOG.md) for details about version upgrades.
@@ -119,4 +119,7 @@ $ php vendor/bin/phpunit
 
 ## License
 
-MIT
+This project is released under the permissive [MIT license](LICENSE).
+
+> Did you know that I offer custom development services and issuing invoices for
+  sponsorships of releases and for contributions? Contact me (@clue) for details.
