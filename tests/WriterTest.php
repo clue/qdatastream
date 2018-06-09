@@ -110,6 +110,24 @@ class WriterTest extends TestCase
         $this->assertEquals("\x00?", (string)$this->writer);
     }
 
+    public function testQStringWideEuro()
+    {
+        $this->writer->writeQString('€');
+        $this->assertEquals("\x00\x00\x00\x02" . "\x20\xAC", (string)$this->writer);
+    }
+
+    public function testQStringWideSupplementaryPlane()
+    {
+        $this->writer->writeQString("\xF0\x90\x8D\x88"); // 𐍈
+        $this->assertEquals("\x00\x00\x00\x04" . "\xd8\x00\xdf\x48", (string)$this->writer);
+    }
+
+    public function testQStringWideViolin()
+    {
+        $this->writer->writeQString("𝄞");
+        $this->assertEquals("\x00\x00\x00\x04" . "\xD8\x34\xDD\x1E", (string)$this->writer);
+    }
+
     public function testQTimeExactlyMidnightIsNullMilliseconds()
     {
         date_default_timezone_set('UTC');

@@ -128,4 +128,28 @@ class ReaderTest extends TestCase
         $reader = new Reader($in);
         $this->assertEquals('€', $reader->readQChar());
     }
+
+    public function testQStringWideEuro()
+    {
+        $in = "\x00\x00\x00\x02" . "\x20\xAC";
+
+        $reader = new Reader($in);
+        $this->assertEquals('€', $reader->readQString());
+    }
+
+    public function testQStringWideSupplementaryPlane()
+    {
+        $in = "\x00\x00\x00\x04" . "\xd8\x00\xdf\x48";
+
+        $reader = new Reader($in);
+        $this->assertEquals('𐍈', $reader->readQString());
+    }
+
+    public function testQStringWideViolin()
+    {
+        $in = "\x00\x00\x00\x04" . "\xD8\x34\xDD\x1E";
+
+        $reader = new Reader($in);
+        $this->assertEquals('𝄞', $reader->readQString());
+    }
 }

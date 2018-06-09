@@ -89,7 +89,7 @@ class Reader
     }
 
     /**
-     * @return string|null text string in UTF-8 encoding (will be transcoded from UCS-2BE)
+     * @return string|null text string in UTF-8 encoding (will be transcoded from UTF-16BE)
      * @throws \UnderflowException
      * @see self::readQByteArray() for reading binary data
      */
@@ -107,7 +107,7 @@ class Reader
     }
 
     /**
-     * @return string single text character in UTF-8 encoding (will be transcoded from UCS-2BE)
+     * @return string single text character in UTF-8 encoding (will be transcoded from UTF-16BE)
      * @throws \UnderflowException
      */
     public function readQChar()
@@ -116,7 +116,7 @@ class Reader
     }
 
     /**
-     * @return string[] array of text strings in UTF-8 encoding (will be transcoded from UCS-2BE)
+     * @return string[] array of text strings in UTF-8 encoding (will be transcoded from UTF-16BE)
      * @throws \UnderflowException
      */
     public function readQStringList()
@@ -313,7 +313,7 @@ class Reader
     }
 
     /**
-     * transcode UCS-2BE (UTF-16BE limited to two bytes) to UTF-8
+     * transcode UTF-16BE to UTF-8
      *
      * @param string $str
      * @return string
@@ -323,28 +323,40 @@ class Reader
     {
         // prefer mb_convert_encoding if available
         if (function_exists('mb_convert_encoding')) {
-            return mb_convert_encoding($str, 'UTF-8', 'UCS-2BE');
+            return mb_convert_encoding($str, 'UTF-8', 'UTF-16BE');
         }
 
         // Otherwise convert each byte pair to its Unicode code point and
         // then manually encode as UTF-8 bytes.
-        $out = '';
-        foreach (str_split($str, 2) as $char) {
-            $code = (ord($char[0]) << 8) + ord($char[1]);
+        return preg_replace_callback('/(?:[\xD8-\xDB]...)|(?:..)/', function ($m) {
+            if (isset($m[0][3])) {
+                // U+10000 - U+10FFFF uses four UTF-16 bytes and 4 UTF-8 bytes
+                // get code point from higher and lower surrogate and convert
+                list(, $higher, $lower) = unpack('n*', $m[0]);
+                $code = (($higher & 0x03FF) << 10) + ($lower & 0x03FF) + 0x10000;
+
+                return pack(
+                    'c*',
+                    $code >> 18 | 0xF0,
+                    $code >> 12 & 0x3F | 0x80,
+                    $code >> 6 & 0x3F | 0x80,
+                    $code & 0x3F | 0x80
+                );
+            }
+
+            list(, $code) = unpack('n', $m[0]);
             if ($code < 0x80) {
                 // U+0000 - U+007F encodes as single ASCII/UTF-8 byte
-                $out .= $char[1];
+                return chr($code);
             } elseif ($code < 0x0800) {
                 // U+0080 - U+07FF encodes as two UTF-8 bytes
-                $out .= chr($code >> 6 | 0xC0) . chr($code & 0x3F | 0x80);
+                return chr($code >> 6 | 0xC0) . chr($code & 0x3F | 0x80);
             } else {
                 // U+0800 - U+FFFF encodes as three UTF-8 bytes
-                // code points outside BMP are not supported by UCS-2 encoding
-                $out .= chr($code >> 12 | 0xE0) . chr($code >> 6 & 0x3F | 0x80) . chr($code & 0x3F | 0x80);
+                return chr($code >> 12 | 0xE0) . chr($code >> 6 & 0x3F | 0x80) . chr($code & 0x3F | 0x80);
             }
-        }
-
-        return $out;
+            return '?';
+        }, $str);
     }
 
     private function read($bytes)
