@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.7.3 (2018-06-09)
+
+*   Feature: Support transcoding between UTF-8 and UTF-16BE also when `ext-mbstring` is not available.
+    (#30 by @clue)
+
+    This is very similar to the feature previously implemented for v0.7.2, but
+    unlike the previous implementation in #28, this now supports the full Unicode
+    range which also includes characters outside of BMP, such as emojis.
+
 ## 0.7.2 (2018-05-29)
 
 *   Feature: Support transcoding between UTF-8 and UCS-2BE also when `ext-mbstring` is not available.
