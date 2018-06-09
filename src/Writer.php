@@ -83,7 +83,7 @@ class Writer
     }
 
     /**
-     * @param string[] $strings array of text strings in UTF-8 encoding (will be transcoded to UCS-2BE)
+     * @param string[] $strings array of text strings in UTF-8 encoding (will be transcoded to UTF-16BE)
      * @return void
      */
     public function writeQStringList(array $strings)
@@ -96,7 +96,7 @@ class Writer
     }
 
     /**
-     * @param string|null $str text string in UTF-8 encoding (will be transcoded to UCS-2BE)
+     * @param string|null $str text string in UTF-8 encoding (will be transcoded to UTF-16BE)
      * @return void
      * @see self::writeQByteArray() for writing binary data
      */
@@ -110,12 +110,16 @@ class Writer
     }
 
     /**
-     * @param string $char single text character in UTF-8 encoding (will be transcoded to UCS-2BE)
+     * @param string $char single text character in UTF-8 encoding. This will be
+     *     transcoded to UTF-16BE (or actually UCS-2BE because it only supports
+     *     BMP characters) and uses "?" replacement character otherwise.
      * @return void
      */
     public function writeQChar($char)
     {
-        $this->buffer .= substr($this->conv($char), 0, 2);
+        // transcode to UTF-16BE and assume result to be exactly two bytes, otherwise use "?"
+        $char = $this->conv($char);
+        $this->buffer .= isset($char[1]) && !isset($char[2]) ? $char : "\x00?";
     }
 
     /**
@@ -288,7 +292,7 @@ class Writer
     }
 
     /**
-     * transcode UTF-8 to UCS-2BE (UTF-16BE limited to two bytes)
+     * transcode UTF-8 to UTF-16BE
      *
      * @param string $str
      * @return string
@@ -299,21 +303,22 @@ class Writer
         // prefer mb_convert_encoding if available
         if (function_exists('mb_convert_encoding')) {
             mb_substitute_character(ord('?'));
-            return mb_convert_encoding($str, 'UCS-2BE', 'UTF-8');
+            return mb_convert_encoding($str, 'UTF-16BE', 'UTF-8');
         }
 
         // otherwise match each UTF-8 character byte sequence, manually convert
-        // it to its Unicode code point and then encode as UCS-2BE byte pair.
+        // it to its Unicode code point and then encode as UTF-16BE byte sequence.
         return preg_replace_callback('/./u', function ($m) {
-            // U+0000 - U+007F single byte ASCII/UTF-8 character
             if (!isset($m[0][1])) {
+                // U+0000 - U+007F single byte ASCII/UTF-8 character
                 return "\x00" . $m[0];
             }
 
-            // U+10000 - U+10FFFF uses four UTF-8 bytes, but this does
-            // not encode as UCS-2, so use "?" placeholder instead.
             if (isset($m[0][3])) {
-                return "\x00?";
+                // U+10000 - U+10FFFF uses four UTF-8 bytes and 4 UTF-16 bytes
+                // get code point and convert to higher and lower surrogate
+                $code = ((ord($m[0][0]) & 0x07) << 18) + ((ord($m[0][1]) & 0x3F) << 12) + ((ord($m[0][2]) & 0x3F) << 6) + (ord($m[0][3]) & 0x3F);
+                return pack('nn', ($code - 0x10000 >> 10) | 0xD800, ($code & 0x03FF) | 0xDC00);
             }
 
             if (isset($m[0][2])) {
