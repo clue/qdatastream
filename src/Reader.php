@@ -328,7 +328,7 @@ class Reader
 
         // Otherwise convert each byte pair to its Unicode code point and
         // then manually encode as UTF-8 bytes.
-        return preg_replace_callback('/(?:[\xD8-\xDB]...)|(?:..)/', function ($m) {
+        return preg_replace_callback('/(?:[\xD8-\xDB]...)|(?:..)/s', function ($m) {
             if (isset($m[0][3])) {
                 // U+10000 - U+10FFFF uses four UTF-16 bytes and 4 UTF-8 bytes
                 // get code point from higher and lower surrogate and convert
