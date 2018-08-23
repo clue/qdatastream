@@ -308,7 +308,7 @@ class Writer
 
         // otherwise match each UTF-8 character byte sequence, manually convert
         // it to its Unicode code point and then encode as UTF-16BE byte sequence.
-        return preg_replace_callback('/./u', function ($m) {
+        return preg_replace_callback('/./su', function ($m) {
             if (!isset($m[0][1])) {
                 // U+0000 - U+007F single byte ASCII/UTF-8 character
                 return "\x00" . $m[0];

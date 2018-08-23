@@ -80,6 +80,12 @@ class WriterTest extends TestCase
         $this->assertEquals("\x00\x00\x00\x04" . "\x00H\x00i", (string)$this->writer);
     }
 
+    public function testQStringWithNewline()
+    {
+        $this->writer->writeQString("a\nb");
+        $this->assertEquals("\x00\x00\x00\x06" . "\x00a\x00\n\x00b", (string)$this->writer);
+    }
+
     public function testQCharAscii()
     {
         $this->writer->writeQChar('o');

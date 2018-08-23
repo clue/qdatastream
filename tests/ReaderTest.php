@@ -129,6 +129,14 @@ class ReaderTest extends TestCase
         $this->assertEquals('€', $reader->readQChar());
     }
 
+    public function testQStringWithNewline()
+    {
+        $in = "\x00\x00\x00\x06" . "\x00a\x00\n\00b";
+
+        $reader = new Reader($in);
+        $this->assertEquals("a\nb", $reader->readQString());
+    }
+
     public function testQStringWideEuro()
     {
         $in = "\x00\x00\x00\x02" . "\x20\xAC";
