@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.4 (2018-10-16)
+
+*   Fix: Fix transcoding strings with newlines between UTF-8 and UTF-16BE when ext-mbstring is not available.
+    (#31 by @clue)
+
 ## 0.7.3 (2018-06-09)
 
 *   Feature: Support transcoding between UTF-8 and UTF-16BE also when `ext-mbstring` is not available.

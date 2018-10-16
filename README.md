@@ -17,8 +17,8 @@ Lightweight PHP library that allows exchanging binary data with Qt programs (QDa
 
 ### Writer
 
-The `Writer` class can be used to build a buffer that data can be written to
-and eventually be accessed as a binary string.
+The `Writer` class can be used to build a binary buffer string from the
+structured data you write to it.
 
 ```php
 $writer = new Writer();
@@ -86,7 +86,7 @@ The recommended way to install this library is [through Composer](https://getcom
 This will install the latest supported version:
 
 ```bash
-$ composer require clue/qdatastream:^0.7.3
+$ composer require clue/qdatastream:^0.7.4
 ```
 
 See also the [CHANGELOG](CHANGELOG.md) for details about version upgrades.
