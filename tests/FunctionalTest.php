@@ -121,6 +121,27 @@ class FunctionalTest extends TestCase
         );
     }
 
+    public function testQVariantAutoTypesAcceptsStdClassObjects()
+    {
+        $in = (object)array(
+            'hello' => 'world',
+            'bool' => true,
+            'year' => 2015,
+            'list' => array(
+                'first',
+                'second'
+            )
+        );
+
+        $writer = new Writer();
+        $writer->writeQVariant($in);
+
+        $data = (string)$writer;
+        $reader = new Reader($data, array(), true);
+
+        $this->assertEquals($in, $reader->readQVariant());
+    }
+
     public function testQVariantExplicitCharType()
     {
         $in = 100;
