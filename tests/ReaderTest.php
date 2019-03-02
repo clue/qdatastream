@@ -173,35 +173,58 @@ class ReaderTest extends TestCase
         $this->assertEquals('€', $reader->readQChar());
     }
 
-    public function testQStringWithNewline()
+    public function provideQString()
     {
-        $in = "\x00\x00\x00\x06" . "\x00a\x00\n\00b";
-
-        $reader = new Reader($in);
-        $this->assertEquals("a\nb", $reader->readQString());
+        return array(
+            'hello-umlaut' => array(
+                "\x00\x00\x00\x0a" . "\x00h\x00e\x00l\x00l\x00\xf6",
+                'hellö'
+            ),
+            'with-newline' => array(
+                "\x00\x00\x00\x06" . "\x00a\x00\n\00b",
+                "a\nb"
+            ),
+            'wide-euro' => array(
+                "\x00\x00\x00\x02" . "\x20\xAC",
+                '€'
+            ),
+            'wide-supplementary-plane' => array(
+                "\x00\x00\x00\x04" . "\xd8\x00\xdf\x48",
+                '𐍈'
+            ),
+            'wide-violin' => array(
+                "\x00\x00\x00\x04" . "\xD8\x34\xDD\x1E",
+                '𝄞'
+            )
+        );
     }
 
-    public function testQStringWideEuro()
+    /**
+     * @dataProvider provideQString
+     * @requires extension mbstring
+     * @param string $binary
+     * @param string $expected
+     */
+    public function testQString($binary, $expected)
     {
-        $in = "\x00\x00\x00\x02" . "\x20\xAC";
+        $reader = new Reader($binary);
 
-        $reader = new Reader($in);
-        $this->assertEquals('€', $reader->readQString());
+        $this->assertEquals($expected, $reader->readQString());
     }
 
-    public function testQStringWideSupplementaryPlane()
+    /**
+     * @dataProvider provideQString
+     * @param string $binary
+     * @param string $expected
+     */
+    public function testQStringWithoutExtension($binary, $expected)
     {
-        $in = "\x00\x00\x00\x04" . "\xd8\x00\xdf\x48";
+        $reader = new Reader($binary);
 
-        $reader = new Reader($in);
-        $this->assertEquals('𐍈', $reader->readQString());
-    }
+        $ref = new ReflectionProperty($reader, 'supportsExtMbstring');
+        $ref->setAccessible(true);
+        $ref->setValue($reader, false);
 
-    public function testQStringWideViolin()
-    {
-        $in = "\x00\x00\x00\x04" . "\xD8\x34\xDD\x1E";
-
-        $reader = new Reader($in);
-        $this->assertEquals('𝄞', $reader->readQString());
+        $this->assertEquals($expected, $reader->readQString());
     }
 }

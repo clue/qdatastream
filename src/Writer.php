@@ -9,6 +9,7 @@ class Writer
     private $hasNull = true;
 
     private $buffer = '';
+    private $supportsExtMbstring;
 
     /**
      * @param array $userTypeMap
@@ -16,6 +17,9 @@ class Writer
     public function __construct($userTypeMap = array())
     {
         $this->userTypeMap = $userTypeMap;
+
+        // prefer mb_convert_encoding if available
+        $this->supportsExtMbstring = \function_exists('mb_convert_encoding');
     }
 
     /**
@@ -300,13 +304,11 @@ class Writer
      *
      * @param string $str
      * @return string
-     * @codeCoverageIgnore
      */
     private function conv($str)
     {
         // prefer mb_convert_encoding if available
-        if (function_exists('mb_convert_encoding')) {
-            mb_substitute_character(ord('?'));
+        if ($this->supportsExtMbstring) {
             return mb_convert_encoding($str, 'UTF-16BE', 'UTF-8');
         }
 

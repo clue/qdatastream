@@ -9,6 +9,7 @@ class Reader
 
     private $userTypeMap;
     private $hasNull = true;
+    private $supportsExtMbstring;
 
     /**
      * @param string $buffer
@@ -18,6 +19,9 @@ class Reader
     {
         $this->buffer = $buffer;
         $this->userTypeMap = $userTypeMap;
+
+        // prefer mb_convert_encoding if available
+        $this->supportsExtMbstring = \function_exists('mb_convert_encoding');
     }
 
     /**
@@ -372,12 +376,11 @@ class Reader
      *
      * @param string $str
      * @return string
-     * @codeCoverageIgnore
      */
     private function conv($str)
     {
         // prefer mb_convert_encoding if available
-        if (function_exists('mb_convert_encoding')) {
+        if ($this->supportsExtMbstring) {
             return mb_convert_encoding($str, 'UTF-8', 'UTF-16BE');
         }
 
