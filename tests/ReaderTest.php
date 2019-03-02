@@ -55,6 +55,20 @@ class ReaderTest extends TestCase
         $this->assertEquals('Europe/Berlin', $value->getTimezone()->getName());
     }
 
+    public function testReadQVariantWithNullQTimeIsExactlyMidnight()
+    {
+        date_default_timezone_set('UTC');
+
+        $midnight = new DateTime('midnight');
+
+        $in = "\x00\x00\x00\x0f" . "\x00" . "\x00\x00\x00\x00";
+        $reader = new Reader($in);
+
+        $value = $reader->readQVariant();
+
+        $this->assertEquals($midnight, $value);
+    }
+
     /**
      * @depends testUserTypeMapping
      * @param Reader $reader
@@ -89,12 +103,42 @@ class ReaderTest extends TestCase
     /**
      * @expectedException UnexpectedValueException
      */
+    public function testQVariantTypeUnknown()
+    {
+        $in = "\x00\x00\x00\x00" . "\x00";
+
+        $reader = new Reader($in);
+        $reader->readQVariant();
+    }
+
+    /**
+     * @expectedException UnexpectedValueException
+     */
     public function testQUserTypeUnknown()
     {
         $in = "\x00\x00\x00\x7F" . "\x00" . "\x00\x00\x00\x05" . "demo\x00" . "\x00\x00\x00\xFF";
 
         $reader = new Reader($in);
         $reader->readQVariant();
+    }
+
+    public function testBool()
+    {
+        $in = "\x00";
+
+        $reader = new Reader($in);
+        $this->assertFalse($reader->readBool());
+    }
+
+    /**
+     * @expectedException UnderflowException
+     */
+    public function testBoolBeyondLimitThrows()
+    {
+        $in = "";
+
+        $reader = new Reader($in);
+        $this->assertFalse($reader->readBool());
     }
 
     public function testQCharAscii()

@@ -142,43 +142,61 @@ class FunctionalTest extends TestCase
         $this->assertEquals($in, (array)$reader->readQVariant());
     }
 
-    public function testQVariantExplicitCharType()
+    public function provideQVariantExplicitType()
     {
-        $in = 100;
-
-        $writer = new Writer();
-        $writer->writeQVariant(new QVariant($in, Types::TYPE_CHAR));
-
-        $data = (string)$writer;
-        $reader = new Reader($data);
-
-        $this->assertEquals($in, $reader->readQVariant());
+        return array(
+            'char' => array(
+                new QVariant(100, Types::TYPE_CHAR),
+                100
+            ),
+            'uchar' => array(
+                new QVariant(255, Types::TYPE_UCHAR),
+                255
+            ),
+            'qchar' => array(
+                new QVariant('ö', Types::TYPE_QCHAR),
+                'ö'
+            ),
+            'qbytearray' => array(
+                new QVariant('hi', Types::TYPE_QBYTE_ARRAY),
+                'hi'
+            ),
+            'short' => array(
+                new QVariant(30000, Types::TYPE_SHORT),
+                30000
+            )
+        );
     }
 
-    public function testQVariantExplicitQCharType()
+    /**
+     * @dataProvider provideQVariantExplicitType
+     * @param QVariant $qvariant
+     * @param mixed $expected
+     */
+    public function testQVariantExplicitType(QVariant $qvariant, $expected)
     {
-        $in = 'ö';
-
         $writer = new Writer();
-        $writer->writeQVariant(new QVariant($in, Types::TYPE_QCHAR));
+        $writer->writeQVariant($qvariant);
 
         $data = (string)$writer;
         $reader = new Reader($data);
 
-        $this->assertEquals($in, $reader->readQVariant());
+        $this->assertEquals($expected, $reader->readQVariant());
     }
 
     public function testQVariantListSomeExplicit()
     {
         $in = array(
             new QVariant(-10, Types::TYPE_CHAR),
-            20,
-            -300
+            new QVariant(20, Types::TYPE_UINT),
+            -300,
+            new QVariant(array('hello', 'world'), Types::TYPE_QSTRING_LIST)
         );
         $expected = array(
             -10,
             20,
-            -300
+            -300,
+            array('hello', 'world')
         );
 
         $writer = new Writer();
@@ -385,6 +403,22 @@ class FunctionalTest extends TestCase
         $reader = new Reader($in);
 
         $dt = $reader->readQDateTime();
+        $this->assertLessThan(1000, $now->diff($dt)->format('u'));
+    }
+
+    public function testReadQVariantWithQDateTimeNow()
+    {
+        date_default_timezone_set('UTC');
+
+        $now = new \DateTime();
+
+        $writer = new Writer();
+        $writer->writeQVariant($now);
+
+        $in = (string)$writer;
+        $reader = new Reader($in);
+
+        $dt = $reader->readQVariant();
         $this->assertLessThan(1000, $now->diff($dt)->format('u'));
     }
 
