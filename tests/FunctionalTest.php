@@ -101,26 +101,6 @@ class FunctionalTest extends TestCase
         return new Reader($data);
     }
 
-    /**
-     * @depends testQVariantAutoTypes
-     * @param Reader $reader
-     */
-    public function testQVariantAutoTypeAsQVariant(Reader $reader)
-    {
-        $this->assertEquals(
-            new QVariant((object)array(
-                'hello' => new QVariant('world', Types::TYPE_QSTRING),
-                'bool' => new QVariant(true, Types::TYPE_BOOL),
-                'year' => new QVariant(2015, Types::TYPE_INT),
-                'list' => new QVariant(array(
-                    new QVariant('first', Types::TYPE_QSTRING),
-                    new QVariant('second', Types::TYPE_QSTRING)
-                ), Types::TYPE_QVARIANT_LIST)
-            ), Types::TYPE_QVARIANT_MAP),
-            $reader->readQVariant(false)
-        );
-    }
-
     public function testQVariantAutoTypesEncodesAssocArrayAsMapAndListAsList()
     {
         $in = array(
