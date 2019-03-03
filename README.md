@@ -124,7 +124,7 @@ The recommended way to install this library is [through Composer](https://getcom
 This will install the latest supported version:
 
 ```bash
-$ composer require clue/qdatastream:^0.7.4
+$ composer require clue/qdatastream:^0.8
 ```
 
 See also the [CHANGELOG](CHANGELOG.md) for details about version upgrades.

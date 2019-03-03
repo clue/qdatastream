@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.8.0 (2019-03-03)
+
+*   Feature / BC break: Always return `QVariantMap` as instance of `stdClass` instead of assoc array.
+    (#32 by @clue)
+
+    ```php
+    // old
+    $reader = new Reader($data);
+    $map = $reader->readQVariantMap();
+    assert(is_array($map));
+    assert(isset($map['key']));
+
+    // new
+    $reader = new Reader($data);
+    $map = $reader->readQVariantMap();
+    assert($map instanceof \stdClass);
+    assert(isset($map->key));
+    ```
+
+*   BC break: Remove optional flag to parse values into `QVariant`.
+    (#34 by @clue)
+
+*   Improve performance by avoiding unnecessary methods calls and extension checks during runtime
+    (#33 by @clue)
+
 ## 0.7.4 (2018-10-16)
 
 *   Fix: Fix transcoding strings with newlines between UTF-8 and UTF-16BE when ext-mbstring is not available.
