@@ -86,34 +86,57 @@ class WriterTest extends TestCase
         $this->assertEquals("\x00\x00\x00\x06" . "\x00a\x00\n\x00b", (string)$this->writer);
     }
 
-    public function testQCharAscii()
+    public function provideQChar()
     {
-        $this->writer->writeQChar('o');
-        $this->assertEquals("\x00o", (string)$this->writer);
+        return array(
+            'ascii' => array(
+                'o',
+                "\x00o"
+            ),
+            'wide-umlaut' => array(
+                'Ä',
+                "\x00\xC4"
+            ),
+            'wide-cent' => array(
+                '¢',
+                "\x00\xA2"
+            ),
+            'wide-euro' => array(
+                '€',
+                "\x20\xAC"
+            ),
+            'wide-supplementary-pane-will-be-encoded-as-question-mark' => array(
+                "\xF0\x90\x8D\x88", // 𐍈
+                "\x00?"
+            )
+        );
     }
 
-    public function testQCharWideUmlaut()
+    /**
+     * @dataProvider provideQChar
+     * @requires extension mbstring
+     * @param string $char
+     * @param string $binary
+     */
+    public function testQChar($char, $binary)
     {
-        $this->writer->writeQChar('Ä');
-        $this->assertEquals("\x00\xC4", (string)$this->writer);
+        $this->writer->writeQChar($char);
+        $this->assertEquals($binary, (string)$this->writer);
     }
 
-    public function testQCharWideCent()
+    /**
+     * @dataProvider provideQChar
+     * @param string $char
+     * @param string $binary
+     */
+    public function testQCharWithoutExtension($char, $binary)
     {
-        $this->writer->writeQChar('¢');
-        $this->assertEquals("\x00\xA2", (string)$this->writer);
-    }
+        $ref = new ReflectionProperty($this->writer, 'supportsExtMbstring');
+        $ref->setAccessible(true);
+        $ref->setValue($this->writer, false);
 
-    public function testQCharWideEuro()
-    {
-        $this->writer->writeQChar('€');
-        $this->assertEquals("\x20\xAC", (string)$this->writer);
-    }
-
-    public function testQCharWideSupplementaryPlaneWillBeEncodedAsQuestionMark()
-    {
-        $this->writer->writeQChar("\xF0\x90\x8D\x88"); // 𐍈
-        $this->assertEquals("\x00?", (string)$this->writer);
+        $this->writer->writeQChar($char);
+        $this->assertEquals($binary, (string)$this->writer);
     }
 
     public function testQStringWideEuro()

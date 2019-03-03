@@ -9,6 +9,7 @@ class Reader
 
     private $userTypeMap;
     private $hasNull = true;
+    private $supportsExtMbstring;
 
     /**
      * @param string $buffer
@@ -18,6 +19,9 @@ class Reader
     {
         $this->buffer = $buffer;
         $this->userTypeMap = $userTypeMap;
+
+        // prefer mb_convert_encoding if available
+        $this->supportsExtMbstring = \function_exists('mb_convert_encoding');
     }
 
     /**
@@ -32,15 +36,62 @@ class Reader
         $type = $this->readUInt();
 
         if ($this->hasNull) {
-            /*$isNull = */ $this->readBool();
+            // $isNull = $this->readBool();
+            $this->pos++;
         }
 
-        $name = 'read' . Types::getNameByType($type);
-        if (!method_exists($this, $name)) {
-            throw new \BadMethodCallException('Known variant type (' . $type . '), but has no "' . $name . '()" method'); // @codeCoverageIgnore
+        switch ($type) {
+            case Types::TYPE_BOOL:
+                $value = $this->readBool();
+                break;
+            case Types::TYPE_INT:
+                $value = $this->readInt();
+                break;
+            case Types::TYPE_UINT:
+                $value = $this->readUInt();
+                break;
+            case Types::TYPE_QCHAR:
+                $value = $this->readQChar();
+                break;
+            case Types::TYPE_QVARIANT_MAP:
+                $value = $this->readQVariantMap($asNative);
+                break;
+            case Types::TYPE_QVARIANT_LIST:
+                $value = $this->readQVariantList($asNative);
+                break;
+            case Types::TYPE_QSTRING:
+                $value = $this->readQString();
+                break;
+            case Types::TYPE_QSTRING_LIST:
+                $value = $this->readQStringList();
+                break;
+            case Types::TYPE_QBYTE_ARRAY:
+                $value = $this->readQByteArray();
+                break;
+            case Types::TYPE_QTIME:
+                $value = $this->readQTime();
+                break;
+            case Types::TYPE_QDATETIME:
+                $value = $this->readQDateTime();
+                break;
+            case Types::TYPE_QUSER_TYPE:
+                $value = $this->readQUserType($asNative);
+                break;
+            case Types::TYPE_SHORT:
+                $value = $this->readShort();
+                break;
+            case Types::TYPE_CHAR:
+                $value = $this->readChar();
+                break;
+            case Types::TYPE_USHORT:
+                $value = $this->readUShort();
+                break;
+            case Types::TYPE_UCHAR:
+                $value = $this->readUChar();
+                break;
+            default:
+                throw new \UnexpectedValueException('Invalid/unknown variant type (' . $type . ')');
         }
-
-        $value = $this->$name($asNative);
 
         // wrap in QVariant if requested and this is not a UserType
         if (!$asNative && $type !== Types::TYPE_QUSER_TYPE) {
@@ -229,7 +280,14 @@ class Reader
      */
     public function readBool()
     {
-        return $this->read(1) !== "\x00" ? true : false;
+        // this method is used all over this class, so it deserves a special
+        // case for reading common case of 1 byte without an expensive substr()
+        // function call. Otherwise identical with parsing result of `read(1)`.
+        if (!isset($this->buffer[$this->pos])) {
+            throw new \UnderflowException('Not enough data in buffer');
+        }
+
+        return $this->buffer[$this->pos++] !== "\x00";
     }
 
     /**
@@ -318,12 +376,11 @@ class Reader
      *
      * @param string $str
      * @return string
-     * @codeCoverageIgnore
      */
     private function conv($str)
     {
         // prefer mb_convert_encoding if available
-        if (function_exists('mb_convert_encoding')) {
+        if ($this->supportsExtMbstring) {
             return mb_convert_encoding($str, 'UTF-8', 'UTF-16BE');
         }
 
