@@ -25,12 +25,11 @@ class Reader
     }
 
     /**
-     * @param bool $asNative
-     * @return mixed|QVariant
+     * @return mixed
      * @throws \UnderflowException
      * @throws \UnexpectedValueException if an unknown QUserType is encountered
      */
-    public function readQVariant($asNative = true)
+    public function readQVariant()
     {
         // https://github.com/sandsmark/QuasselDroid/blob/master/QuasselDroid/src/main/java/com/iskrembilen/quasseldroid/qtcomm/QVariant.java#L92
         $type = $this->readUInt();
@@ -42,97 +41,72 @@ class Reader
 
         switch ($type) {
             case Types::TYPE_BOOL:
-                $value = $this->readBool();
-                break;
+                return $this->readBool();
             case Types::TYPE_INT:
-                $value = $this->readInt();
-                break;
+                return $this->readInt();
             case Types::TYPE_UINT:
-                $value = $this->readUInt();
-                break;
+                return $this->readUInt();
             case Types::TYPE_QCHAR:
-                $value = $this->readQChar();
-                break;
+                return $this->readQChar();
             case Types::TYPE_QVARIANT_MAP:
-                $value = $this->readQVariantMap($asNative);
-                break;
+                return $this->readQVariantMap();
             case Types::TYPE_QVARIANT_LIST:
-                $value = $this->readQVariantList($asNative);
-                break;
+                return $this->readQVariantList();
             case Types::TYPE_QSTRING:
-                $value = $this->readQString();
-                break;
+                return $this->readQString();
             case Types::TYPE_QSTRING_LIST:
-                $value = $this->readQStringList();
-                break;
+                return $this->readQStringList();
             case Types::TYPE_QBYTE_ARRAY:
-                $value = $this->readQByteArray();
-                break;
+                return $this->readQByteArray();
             case Types::TYPE_QTIME:
-                $value = $this->readQTime();
-                break;
+                return $this->readQTime();
             case Types::TYPE_QDATETIME:
-                $value = $this->readQDateTime();
-                break;
+                return $this->readQDateTime();
             case Types::TYPE_QUSER_TYPE:
-                $value = $this->readQUserType($asNative);
-                break;
+                return $this->readQUserType();
             case Types::TYPE_SHORT:
-                $value = $this->readShort();
-                break;
+                return $this->readShort();
             case Types::TYPE_CHAR:
-                $value = $this->readChar();
-                break;
+                return $this->readChar();
             case Types::TYPE_USHORT:
-                $value = $this->readUShort();
-                break;
+                return $this->readUShort();
             case Types::TYPE_UCHAR:
-                $value = $this->readUChar();
-                break;
+                return $this->readUChar();
             default:
                 throw new \UnexpectedValueException('Invalid/unknown variant type (' . $type . ')');
         }
-
-        // wrap in QVariant if requested and this is not a UserType
-        if (!$asNative && $type !== Types::TYPE_QUSER_TYPE) {
-            $value = new QVariant($value, $type);
-        }
-
-        return $value;
     }
 
     /**
-     * @param bool $asNative
-     * @return mixed[]|QVariant[]
+     * @return mixed[]
      * @throws \UnderflowException
      * @throws \UnexpectedValueException if an unknown QUserType is encountered
      */
-    public function readQVariantList($asNative = true)
+    public function readQVariantList()
     {
         $length = $this->readUInt();
 
         $list = array();
         for ($i = 0; $i < $length; ++$i) {
-            $list []= $this->readQVariant($asNative);
+            $list []= $this->readQVariant();
         }
 
         return $list;
     }
 
     /**
-     * @param bool $asNative
      * @return \stdClass
      * @throws \UnderflowException
      * @throws \UnexpectedValueException if an unknown QUserType is encountered
      */
-    public function readQVariantMap($asNative = true)
+    public function readQVariantMap()
     {
         $length = $this->readUInt();
 
         $map = new \stdClass();
         for ($i = 0; $i < $length; ++$i) {
             $key = $this->readQString();
-            $value = $this->readQVariant($asNative);
+            $value = $this->readQVariant();
 
             $map->$key = $value;
         }
@@ -291,22 +265,15 @@ class Reader
     }
 
     /**
-     * @param bool $asNative
-     * @return mixed|QVariant
+     * @return mixed
      * @throws \UnexpectedValueException if an unknown QUserType is encountered
      */
-    public function readQUserType($asNative = true)
+    public function readQUserType()
     {
         // name is encoded as UTF-8 string (byte array) and ends with \0 as last byte
         $name = substr($this->readQByteArray(), 0, -1);
 
-        $value = $this->readQUserTypeByName($name);
-
-        if (!$asNative) {
-            $value = new QVariant($value, $name);
-        }
-
-        return $value;
+        return $this->readQUserTypeByName($name);
     }
 
     /**
