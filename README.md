@@ -21,6 +21,11 @@ The `Writer` class can be used to build a binary buffer string from the
 structured data you write to it.
 
 ```php
+$user = new stdClass;
+$user->id = 10;
+$user->active = true;
+$user->name = 'Alice';
+
 $writer = new Writer();
 $writer->writeUInt($user->id);
 $writer->writeBool($user->active);
@@ -67,6 +72,39 @@ $value = $reader->readQVariant();
 
 assert($value === 100);
 ```
+
+Additionally, you can use the `writeQVariant()` method without having to specify
+the data type in advance and let this class "guess" an appropriate data
+type for serialization and add this type information to the serialized data.
+This works similar to JSON encoding and accepts primitive values of type `int`,
+`bool`, `string`, `null` and nested structures or type `array` or instances of `stdClass`:
+
+```php
+$rows = [
+    (object)[
+        'id' => 10,
+        'name' => 'Alice',
+        'active' => true,
+        'groups' => ['admin', 'staff']
+    ]
+];
+
+$writer = new Writer();
+$writer->writeQVariant($rows);
+
+$data = (string)$writer;
+$reader = new Reader($data);
+$values = $reader->readQVariant();
+
+assert(count($values) === 1);
+assert($values[0]->id === 10);
+assert($values[0]->groups[0] === 'admin');
+```
+
+Note that associative arrays and `stdClass` objects be will serialized as a "map",
+while vector arrays will be serialized as a "list". In order to avoid confusion
+between these similar data structures, using instances of `stdClass` is considered
+the preferred method in this project.
 
 See the [class outline](src/QVariant.php) for more details.
 

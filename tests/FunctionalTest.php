@@ -80,7 +80,7 @@ class FunctionalTest extends TestCase
 
     public function testQVariantAutoTypes()
     {
-        $in = array(
+        $in = (object)array(
             'hello' => 'world',
             'bool' => true,
             'year' => 2015,
@@ -108,7 +108,7 @@ class FunctionalTest extends TestCase
     public function testQVariantAutoTypeAsQVariant(Reader $reader)
     {
         $this->assertEquals(
-            new QVariant(array(
+            new QVariant((object)array(
                 'hello' => new QVariant('world', Types::TYPE_QSTRING),
                 'bool' => new QVariant(true, Types::TYPE_BOOL),
                 'year' => new QVariant(2015, Types::TYPE_INT),
@@ -119,6 +119,27 @@ class FunctionalTest extends TestCase
             ), Types::TYPE_QVARIANT_MAP),
             $reader->readQVariant(false)
         );
+    }
+
+    public function testQVariantAutoTypesEncodesAssocArrayAsMapAndListAsList()
+    {
+        $in = array(
+            'hello' => 'world',
+            'bool' => true,
+            'year' => 2015,
+            'list' => array(
+                'first',
+                'second'
+            )
+        );
+
+        $writer = new Writer();
+        $writer->writeQVariant($in);
+
+        $data = (string)$writer;
+        $reader = new Reader($data);
+
+        $this->assertEquals($in, (array)$reader->readQVariant());
     }
 
     public function testQVariantExplicitCharType()
@@ -171,11 +192,11 @@ class FunctionalTest extends TestCase
 
     public function testQVariantMapSomeExplicit()
     {
-        $in = array(
+        $in = (object)array(
             'id' => new QVariant(62000, Types::TYPE_USHORT),
             'name' => 'test'
         );
-        $expected = array(
+        $expected = (object)array(
             'id' => 62000,
             'name' => 'test'
         );

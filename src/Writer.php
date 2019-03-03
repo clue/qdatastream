@@ -214,12 +214,16 @@ class Writer
     }
 
     /**
-     * @param array $map
+     * @param array|\stdClass $map
      * @return void
      * @throws \UnexpectedValueException if an unknown QUserType is encountered
      */
-    public function writeQVariantMap(array $map)
+    public function writeQVariantMap($map)
     {
+        if ($map instanceof \stdClass) {
+            $map = (array)$map;
+        }
+
         $this->writeUInt(count($map));
 
         foreach ($map as $key => $value) {

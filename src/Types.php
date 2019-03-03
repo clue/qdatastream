@@ -107,15 +107,17 @@ final class Types
     }
 
     /**
-     * Checks whether the given argument is a map (hash map / assoc array)
+     * Checks whether the given argument is a map (hash map / assoc array or stdClass)
      *
      * An empty array is considered both a list and a map.
      *
-     * @param array $array
-     * @return boolean
+     * An empty stdClass is considered a map.
+     *
+     * @param mixed $value
+     * @return bool
      */
-    public static function isMap($array)
+    public static function isMap($value)
     {
-        return ($array === array() || (is_array($array) && !self::isList($array)));
+        return ($value === array() || (is_array($value) && !self::isList($value)) || $value instanceof \stdClass);
     }
 }

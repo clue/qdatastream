@@ -9,6 +9,7 @@ class Reader
 
     private $userTypeMap;
     private $hasNull = true;
+
     /**
      * @param string $buffer
      * @param array  $userTypeMap
@@ -69,7 +70,7 @@ class Reader
 
     /**
      * @param bool $asNative
-     * @return mixed[]|QVariant[]
+     * @return \stdClass
      * @throws \UnderflowException
      * @throws \UnexpectedValueException if an unknown QUserType is encountered
      */
@@ -77,12 +78,12 @@ class Reader
     {
         $length = $this->readUInt();
 
-        $map = array();
+        $map = new \stdClass();
         for ($i = 0; $i < $length; ++$i) {
             $key = $this->readQString();
             $value = $this->readQVariant($asNative);
 
-            $map[$key] = $value;
+            $map->$key = $value;
         }
 
         return $map;
