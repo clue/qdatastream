@@ -81,7 +81,7 @@ This works similar to JSON encoding and accepts primitive values of type `int`,
 
 ```php
 $rows = [
-    [
+    (object)[
         'id' => 10,
         'name' => 'Alice',
         'active' => true,
@@ -97,25 +97,14 @@ $reader = new Reader($data);
 $values = $reader->readQVariant();
 
 assert(count($values) === 1);
-assert($values[0]['id'] === 10);
-assert($values[0]['groups'][0] === 'admin');
-```
-
-Note that associative arrays and `stdClass` objects be will serialized as a "map",
-while vector arrays will be serialized as a "list". By default, the
-`readQVariant()` method will unserialize both to a PHP array. This means that both
-an empty "map" and an emtpy "list" will be represented as an empty PHP array.
-This may be a problem for some use cases, so the `Reader` class accepts an
-optional boolean flag to always unserialize type "map" to a `stdClass`:
-
-```php
-$reader = new Reader($data, array(), true);
-$values = $reader->readQVariant();
-
-assert(count($values) === 1);
 assert($values[0]->id === 10);
 assert($values[0]->groups[0] === 'admin');
 ```
+
+Note that associative arrays and `stdClass` objects be will serialized as a "map",
+while vector arrays will be serialized as a "list". In order to avoid confusion
+between these similar data structures, using instances of `stdClass` is considered
+the preferred method in this project.
 
 See the [class outline](src/QVariant.php) for more details.
 

@@ -9,17 +9,15 @@ class Reader
 
     private $userTypeMap;
     private $hasNull = true;
-    private $mapAsObject;
 
     /**
      * @param string $buffer
      * @param array  $userTypeMap
      */
-    public function __construct($buffer, $userTypeMap = array(), $mapAsObjects = false)
+    public function __construct($buffer, $userTypeMap = array())
     {
         $this->buffer = $buffer;
         $this->userTypeMap = $userTypeMap;
-        $this->mapAsObject = $mapAsObjects;
     }
 
     /**
@@ -72,7 +70,7 @@ class Reader
 
     /**
      * @param bool $asNative
-     * @return mixed[]|QVariant[]|\stdClass
+     * @return \stdClass
      * @throws \UnderflowException
      * @throws \UnexpectedValueException if an unknown QUserType is encountered
      */
@@ -80,15 +78,12 @@ class Reader
     {
         $length = $this->readUInt();
 
-        $map = array();
+        $map = new \stdClass();
         for ($i = 0; $i < $length; ++$i) {
             $key = $this->readQString();
             $value = $this->readQVariant($asNative);
 
-            $map[$key] = $value;
-        }
-        if ($this->mapAsObject) {
-            return (object)$map;
+            $map->$key = $value;
         }
 
         return $map;
