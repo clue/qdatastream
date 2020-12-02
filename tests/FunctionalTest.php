@@ -299,7 +299,7 @@ class FunctionalTest extends TestCase
         $reader = new Reader($in);
 
         $dt = $reader->readQTime();
-        $this->assertLessThan(1000, $now->diff($dt)->format('u'));
+        $this->assertLessThan(1000, $now->diff($dt)->format('%u'));
     }
 
     public function testReadQTimeNowCorrectTimezone()
@@ -316,7 +316,7 @@ class FunctionalTest extends TestCase
 
         $dt = $reader->readQTime();
 
-        $this->assertLessThan(1000, $now->diff($dt)->format('u'));
+        $this->assertLessThan(1000, $now->diff($dt)->format('%u'));
         $this->assertEquals('Europe/Berlin', $dt->getTimezone()->getName());
     }
 
@@ -383,7 +383,7 @@ class FunctionalTest extends TestCase
         $reader = new Reader($in);
 
         $dt = $reader->readQDateTime();
-        $this->assertLessThan(1000, $now->diff($dt)->format('u'));
+        $this->assertLessThan(1000, $now->diff($dt)->format('%u'));
     }
 
     public function testReadQVariantWithQDateTimeNow()
@@ -399,7 +399,7 @@ class FunctionalTest extends TestCase
         $reader = new Reader($in);
 
         $dt = $reader->readQVariant();
-        $this->assertLessThan(1000, $now->diff($dt)->format('u'));
+        $this->assertLessThan(1000, $now->diff($dt)->format('%u'));
     }
 
     public function testReadQDateTimeNowWithCorrectTimezone()
@@ -415,7 +415,7 @@ class FunctionalTest extends TestCase
         $reader = new Reader($in);
 
         $dt = $reader->readQDateTime();
-        $this->assertLessThan(1000, $now->diff($dt)->format('u'));
+        $this->assertLessThan(1000, $now->diff($dt)->format('%u'));
 
         $this->assertEquals('Europe/Berlin', $dt->getTimezone()->getName());
     }
