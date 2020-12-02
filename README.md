@@ -1,4 +1,6 @@
-# clue/qdatastream [![Build Status](https://travis-ci.org/clue/php-qdatastream.svg?branch=master)](https://travis-ci.org/clue/php-qdatastream)
+# clue/qdatastream
+
+[![CI status](https://github.com/clue/php-qdatastream/workflows/CI/badge.svg)](https://github.com/clue/php-qdatastream/actions)
 
 Lightweight PHP library that allows exchanging binary data with Qt programs (QDataStream)
 
