@@ -367,7 +367,7 @@ class FunctionalTest extends TestCase
         $reader = new Reader($in);
 
         $dt = $reader->readQTime();
-        $this->assertEquals($now, $dt->format('U.u'), '', 0.001);
+        $this->assertEqualsDelta($now, $dt->format('U.u'), 0.001);
     }
 
     public function testReadQDateTimeNow()
@@ -506,6 +506,17 @@ class FunctionalTest extends TestCase
         $reader = new Reader($in);
 
         $dt = $reader->readQDateTime();
-        $this->assertEquals($now, $dt->format('U.u'), '', 0.001);
+        $this->assertEqualsDelta($now, $dt->format('U.u'), 0.001);
+    }
+
+    public function assertEqualsDelta($expected, $actual, $delta, $message = '')
+    {
+        if (method_exists($this, 'assertEqualsWithDelta')) {
+            // PHPUnit 7.5+
+            $this->assertEqualsWithDelta($expected, $actual, $delta, $message);
+        } else {
+            // legacy PHPUnit 4 - PHPUnit 7.4
+            $this->assertEquals($expected, $actual, $message, $delta);
+        }
     }
 }
