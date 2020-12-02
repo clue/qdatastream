@@ -32,11 +32,26 @@ class TypesTest extends TestCase
         $this->assertEquals(Types::TYPE_QDATETIME, Types::getTypeByValue(new \DateTime()));
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testInvalidType()
     {
+        $this->setExpectedException('InvalidArgumentException');
         Types::getNameByType(123456);
+    }
+
+    public function setExpectedException($exception, $exceptionMessage = '', $exceptionCode = null)
+    {
+        if (method_exists($this, 'expectException')) {
+            // PHPUnit 5.2+
+            $this->expectException($exception);
+            if ($exceptionMessage !== '') {
+                $this->expectExceptionMessage($exceptionMessage);
+            }
+            if ($exceptionCode !== null) {
+                $this->expectExceptionCode($exceptionCode);
+            }
+        } else {
+            // legacy PHPUnit 4 - PHPUnit 5.1
+            parent::setExpectedException($exception, $exceptionMessage, $exceptionCode);
+        }
     }
 }

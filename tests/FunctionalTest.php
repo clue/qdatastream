@@ -299,7 +299,7 @@ class FunctionalTest extends TestCase
         $reader = new Reader($in);
 
         $dt = $reader->readQTime();
-        $this->assertLessThan(1000, $now->diff($dt)->format('u'));
+        $this->assertLessThan(1000, $now->diff($dt)->format('%u'));
     }
 
     public function testReadQTimeNowCorrectTimezone()
@@ -316,7 +316,7 @@ class FunctionalTest extends TestCase
 
         $dt = $reader->readQTime();
 
-        $this->assertLessThan(1000, $now->diff($dt)->format('u'));
+        $this->assertLessThan(1000, $now->diff($dt)->format('%u'));
         $this->assertEquals('Europe/Berlin', $dt->getTimezone()->getName());
     }
 
@@ -367,7 +367,7 @@ class FunctionalTest extends TestCase
         $reader = new Reader($in);
 
         $dt = $reader->readQTime();
-        $this->assertEquals($now, $dt->format('U.u'), '', 0.001);
+        $this->assertEqualsDelta($now, $dt->format('U.u'), 0.001);
     }
 
     public function testReadQDateTimeNow()
@@ -383,7 +383,7 @@ class FunctionalTest extends TestCase
         $reader = new Reader($in);
 
         $dt = $reader->readQDateTime();
-        $this->assertLessThan(1000, $now->diff($dt)->format('u'));
+        $this->assertLessThan(1000, $now->diff($dt)->format('%u'));
     }
 
     public function testReadQVariantWithQDateTimeNow()
@@ -399,7 +399,7 @@ class FunctionalTest extends TestCase
         $reader = new Reader($in);
 
         $dt = $reader->readQVariant();
-        $this->assertLessThan(1000, $now->diff($dt)->format('u'));
+        $this->assertLessThan(1000, $now->diff($dt)->format('%u'));
     }
 
     public function testReadQDateTimeNowWithCorrectTimezone()
@@ -415,7 +415,7 @@ class FunctionalTest extends TestCase
         $reader = new Reader($in);
 
         $dt = $reader->readQDateTime();
-        $this->assertLessThan(1000, $now->diff($dt)->format('u'));
+        $this->assertLessThan(1000, $now->diff($dt)->format('%u'));
 
         $this->assertEquals('Europe/Berlin', $dt->getTimezone()->getName());
     }
@@ -506,6 +506,17 @@ class FunctionalTest extends TestCase
         $reader = new Reader($in);
 
         $dt = $reader->readQDateTime();
-        $this->assertEquals($now, $dt->format('U.u'), '', 0.001);
+        $this->assertEqualsDelta($now, $dt->format('U.u'), 0.001);
+    }
+
+    public function assertEqualsDelta($expected, $actual, $delta, $message = '')
+    {
+        if (method_exists($this, 'assertEqualsWithDelta')) {
+            // PHPUnit 7.5+
+            $this->assertEqualsWithDelta($expected, $actual, $delta, $message);
+        } else {
+            // legacy PHPUnit 4 - PHPUnit 7.4
+            $this->assertEquals($expected, $actual, $message, $delta);
+        }
     }
 }

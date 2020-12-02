@@ -67,47 +67,43 @@ class ReaderTest extends TestCase
         $this->assertEquals($midnight, $value);
     }
 
-    /**
-     * @expectedException UnderflowException
-     */
     public function testReadBeyondLimitThrows()
     {
         $in = "\x00\x00";
 
         $reader = new Reader($in);
+
+        $this->setExpectedException('UnderflowException');
         $reader->readInt();
     }
 
-    /**
-     * @expectedException UnderflowException
-     */
     public function testReadUintBeyondLimitThrows()
     {
         $in = "\x00\x00";
 
         $reader = new Reader($in);
+
+        $this->setExpectedException('UnderflowException');
         $reader->readUInt();
     }
 
-    /**
-     * @expectedException UnexpectedValueException
-     */
     public function testQVariantTypeUnknown()
     {
         $in = "\x00\x00\x00\x00" . "\x00";
 
         $reader = new Reader($in);
+
+        $this->setExpectedException('UnexpectedValueException');
         $reader->readQVariant();
     }
 
-    /**
-     * @expectedException UnexpectedValueException
-     */
     public function testQUserTypeUnknown()
     {
         $in = "\x00\x00\x00\x7F" . "\x00" . "\x00\x00\x00\x05" . "demo\x00" . "\x00\x00\x00\xFF";
 
         $reader = new Reader($in);
+
+        $this->setExpectedException('UnexpectedValueException');
         $reader->readQVariant();
     }
 
@@ -119,14 +115,13 @@ class ReaderTest extends TestCase
         $this->assertFalse($reader->readBool());
     }
 
-    /**
-     * @expectedException UnderflowException
-     */
     public function testBoolBeyondLimitThrows()
     {
         $in = "";
 
         $reader = new Reader($in);
+
+        $this->setExpectedException('UnderflowException');
         $this->assertFalse($reader->readBool());
     }
 
@@ -215,5 +210,22 @@ class ReaderTest extends TestCase
         $ref->setValue($reader, false);
 
         $this->assertEquals($expected, $reader->readQString());
+    }
+
+    public function setExpectedException($exception, $exceptionMessage = '', $exceptionCode = null)
+    {
+        if (method_exists($this, 'expectException')) {
+            // PHPUnit 5.2+
+            $this->expectException($exception);
+            if ($exceptionMessage !== '') {
+                $this->expectExceptionMessage($exceptionMessage);
+            }
+            if ($exceptionCode !== null) {
+                $this->expectExceptionCode($exceptionCode);
+            }
+        } else {
+            // legacy PHPUnit 4 - PHPUnit 5.1
+            parent::setExpectedException($exception, $exceptionMessage, $exceptionCode);
+        }
     }
 }

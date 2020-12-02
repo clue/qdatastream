@@ -7,7 +7,10 @@ use PHPUnit\Framework\TestCase;
 
 class WriterTest extends TestCase
 {
-    public function setUp()
+    /**
+     * @before
+     */
+    public function setUpWriter()
     {
         $this->writer = new Writer(array(
             'year' => function ($data, Writer $writer) {
@@ -236,11 +239,9 @@ class WriterTest extends TestCase
         $this->assertEquals("\x00\x00\x00\x85\x00" . "\x07\xDF", (string)$this->writer);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testQVariantNullCanNotBeSerialized()
     {
+        $this->setExpectedException('InvalidArgumentException');
         $this->writer->writeQVariant(null);
     }
 
@@ -280,11 +281,26 @@ class WriterTest extends TestCase
         $this->assertEquals("\x00\x00\x00\x05" . "user\x00" . "\x00\x0A" . "\x00\x00\x00\x08" . "\x00t\x00e\x00s\x00t", (string)$this->writer);
     }
 
-    /**
-     * @expectedException UnexpectedValueException
-     */
     public function testQUserTypeInvalid()
     {
+        $this->setExpectedException('UnexpectedValueException');
         $this->writer->writeQUserTypeByName(10, 'unknown');
+    }
+
+    public function setExpectedException($exception, $exceptionMessage = '', $exceptionCode = null)
+    {
+        if (method_exists($this, 'expectException')) {
+            // PHPUnit 5.2+
+            $this->expectException($exception);
+            if ($exceptionMessage !== '') {
+                $this->expectExceptionMessage($exceptionMessage);
+            }
+            if ($exceptionCode !== null) {
+                $this->expectExceptionCode($exceptionCode);
+            }
+        } else {
+            // legacy PHPUnit 4 - PHPUnit 5.1
+            parent::setExpectedException($exception, $exceptionMessage, $exceptionCode);
+        }
     }
 }
